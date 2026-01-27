@@ -7,17 +7,24 @@ use Illuminate\Http\Request;
 
 class RoleMiddleware
 {
-    public function handle(Request $request, Closure $next, ...$roles)
-    {
-        $user = $request->user();
 
-        if (!$user) {
-            return response()->json(['message' => 'Unauthenticated'], 401);
+
+        public function handle($request, Closure $next, ...$roles)
+    {
+        if (!Auth::check()) {
+           return response()->json(['message' => 'Unauthenticated'], 401);
         }
+
+        $user = Auth::user();
+
+        if ($user->status !== 'active') {
+              return response()->json(['message' => 'حسابك قيد المراجعة'], 403);
+         }
 
         if (!in_array($user->role, $roles)) {
-            return response()->json(['message' => 'Forbidden'], 403);
-        }
+         return response()->json(['message' => 'غير مصرح لك بالدخول'], 403);
+
+         }
 
         return $next($request);
     }
