@@ -15,7 +15,7 @@ return new class extends Migration
     $table->id();
     $table->string('name');
     $table->string('email')->nullable(); // فقط للشركة أو admin
-    $table->string('university_id')->nullable(); // للمشرف والطالب
+    $table->unsignedBigInteger('university_id')->nullable(); // للمشرف والطالب
     $table->string('role'); // admin, supervisor, student, company
     $table->string('password');
 $table->enum('status', ['pending', 'active', 'rejected'])->default('pending');

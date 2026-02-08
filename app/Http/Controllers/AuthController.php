@@ -22,7 +22,7 @@ class AuthController extends Controller
     }
 
     // =========================
-    // تسجيل الدخول
+    // تسجيل الدخول----
     // =========================
     public function login(Request $request)
     {
@@ -82,10 +82,12 @@ class AuthController extends Controller
         }
 
         Auth::login($user);
+        $token = $user->createToken('register-token')->plainTextToken;
 
         return response()->json([
             'status' => true,
             'message' => 'تم تسجيل الدخول بنجاح',
+              'token' => $token,
             'data' => $user
         ]);
     }
