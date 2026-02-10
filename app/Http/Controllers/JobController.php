@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Models\Job;
+use App\Models\InternshipOpportunity;
 use App\Models\User;
 
 class JobController extends Controller
@@ -38,7 +38,7 @@ public function createJob(Request $request)
         ]);
 
  
-         $job = Job::create([
+         $job = InternshipOpportunity::create([
         'company_user_id'  => $request->user()->id,
             'title'            => $validated['title'],
             'description'      => $validated['description'],
@@ -72,7 +72,7 @@ public function updateJob(Request $request, $id)
         ], 403);
     }
 
-    $job = Job::find($id);
+    $job = InternshipOpportunity::find($id);
 
     if (!$job) {
         return response()->json([
@@ -125,7 +125,7 @@ public function deleteJob(Request $request, $id)
         ], 403);
     }
 
-    $job = Job::find($id);
+    $job = InternshipOpportunity::find($id);
 
     if (!$job) {
         return response()->json([

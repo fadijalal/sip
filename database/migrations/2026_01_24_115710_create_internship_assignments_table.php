@@ -7,27 +7,27 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::create('internship_assignments', function (Blueprint $table) {
-            $table->id();
+        // Schema::create('internship_assignments', function (Blueprint $table) {
+            // $table->id();
 
-            $table->foreignId('student_id')->constrained('students')->cascadeOnDelete();
-            $table->foreignId('internship_opportunity_id')->constrained('internship_opportunities')->cascadeOnDelete();
+            // $table->foreignId('student_id')->constrained('students')->cascadeOnDelete();
+            // $table->foreignId('internship_opportunity_id')->constrained('internship_opportunities')->cascadeOnDelete();
 
-            // اعتماد المشرف (اختياري لحين الموافقة)
-            $table->foreignId('approved_by_supervisor_id')->nullable()->constrained('supervisors')->nullOnDelete();
+            // // اعتماد المشرف (اختياري لحين الموافقة)
+            // $table->foreignId('approved_by_supervisor_id')->nullable()->constrained('supervisors')->nullOnDelete();
 
-            $table->string('assignment_status')->default('pending_approval');
-            // pending_approval/active/completed/cancelled
+            // $table->string('assignment_status')->default('pending_approval');
+            // // pending_approval/active/completed/cancelled
 
-            $table->date('start_date')->nullable();
-            $table->date('end_date')->nullable();
+            // $table->date('start_date')->nullable();
+            // $table->date('end_date')->nullable();
 
-            $table->timestamps();
-        });
+            // $table->timestamps();
+        // });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('internship_assignments');
+        // Schema::dropIfExists('internship_assignments');
     }
 };

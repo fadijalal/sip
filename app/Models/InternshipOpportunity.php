@@ -4,7 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 
-class Job extends Model
+class InternshipOpportunity extends Model
 {
     protected $fillable = [
      'company_user_id',

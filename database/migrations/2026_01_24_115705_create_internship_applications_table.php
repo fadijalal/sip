@@ -7,26 +7,38 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration {
     public function up(): void
     {
-        Schema::create('internship_applications', function (Blueprint $table) {
+        Schema::create('applications', function (Blueprint $table) {
             $table->id();
 
-            $table->foreignId('student_id')->constrained('students')->cascadeOnDelete();
-            $table->foreignId('internship_opportunity_id')->constrained('internship_opportunities')->cascadeOnDelete();
+          $table->foreignId('student_id')
+          ->constrained('users')
+          ->cascadeOnDelete();
 
+   $table->foreignId('opportunity_id')
+      ->constrained('internship_opportunities')
+      ->cascadeOnDelete();
+
+
+        
+            $table->text('skills')->nullable();        
             $table->text('motivation')->nullable();
-            $table->string('status')->default('applied'); // applied/shortlisted/rejected/withdrawn
-            $table->timestamp('applied_at')->useCurrent();
 
+            $table->enum('status', [
+                'company_accepted',
+                'assigned',
+                'supervisor_rejected',
+                'supervisor_accepted',
+                'company_rejected',
+                'pending'
+            ])->default('pending');
+
+            $table->string('cv'); 
             $table->timestamps();
-
-            $table->unique(
-                ['student_id', 'internship_opportunity_id'],
-                'uniq_student_opportunity'
-            );        });
+        });
     }
 
     public function down(): void
     {
-        Schema::dropIfExists('internship_applications');
+        Schema::dropIfExists('applications');
     }
 };

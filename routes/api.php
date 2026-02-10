@@ -6,6 +6,7 @@ use App\Http\Controllers\InternshipAssignmentController
 ;use App\Http\Controllers\InternshipApplicationController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
+use App\Http\Controllers\ApplicationController;
 
 Route::prefix('v1')->group(function () {
 
@@ -30,6 +31,8 @@ Route::prefix('v1')->group(function () {
         Route::post('/company/createJob', [JobController::class, 'createJob']);
     Route::post('/company/jobs/{id}', [JobController::class, 'updateJob']);
 Route::delete('/company/jobs/{id}', [JobController::class, 'deleteJob']);
+Route::post('/application', [ApplicationController::class, 'applyApplication']);
+
     });
 
 
