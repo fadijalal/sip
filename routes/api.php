@@ -7,6 +7,7 @@ use App\Http\Controllers\InternshipAssignmentController
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminController;
 use App\Http\Controllers\ApplicationController;
+use Illuminate\Http\Request;
 
 Route::prefix('v1')->group(function () {
 
@@ -26,13 +27,28 @@ Route::prefix('v1')->group(function () {
  
            Route::post('/admin/supervisor/{id}', [AdminController::class, 'updateSupervisorStatus']);
     Route::post('/admin/company/{id}', [AdminController::class, 'updateCompanyStatus']);
+      
+         Route::get('/supervisor/students', [ApplicationController::class, 'supervisorStudents']);
+ 
+        Route::post('/supervisor/approve-student/{id}',  [ApplicationController::class, 'approveStudent']  );
 
+        Route::post(  '/supervisor/reject-student/{id}', [ApplicationController::class, 'rejectStudent']);
 
         Route::post('/company/createJob', [JobController::class, 'createJob']);
     Route::post('/company/jobs/{id}', [JobController::class, 'updateJob']);
 Route::delete('/company/jobs/{id}', [JobController::class, 'deleteJob']);
 Route::post('/application', [ApplicationController::class, 'applyApplication']);
 
+
+        Route::get('/my-applications', [ApplicationController::class, 'myApplications']);
+
+        Route::get('/company/applications', [ApplicationController::class, 'companyApplications']);
+        Route::post('/company/approve/{id}', [ApplicationController::class, 'companyApprove']);
+        Route::post('/company/reject/{id}', [ApplicationController::class, 'companyReject']);
+
+        Route::get('/supervisor/applications', [ApplicationController::class, 'supervisorApplications']);
+        Route::post('/supervisor/approve/{id}', [ApplicationController::class, 'supervisorApprove']);
+        Route::post('/supervisor/reject/{id}', [ApplicationController::class, 'supervisorReject']);
     });
 
 

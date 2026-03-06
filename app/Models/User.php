@@ -30,7 +30,15 @@ class User extends Authenticatable
 'company_address',
     'status',
 ];
+    public function applications()
+    {
+        return $this->hasMany(Application::class, 'student_id');
+    }
 
+    public function opportunities()
+    {
+        return $this->hasMany(InternshipOpportunity::class, 'company_user_id');
+    }
 
 
     /**

@@ -6,27 +6,25 @@ use Illuminate\Database\Eloquent\Model;
 
 class Application extends Model
 {
-       protected $fillable = [
-     'student_id',
+    protected $fillable = [
+        'student_id',
         'opportunity_id',
         'skills',
         'motivation',
-        'status',
         'cv',
+        'company_status',
+        'supervisor_status',
+        'final_status',
+        'approved_at'
     ];
 
-    //      protected $casts = [
-    //     'skils'=>'array',
-    // ];
-
-    public function user()
+    public function student()
     {
-        return $this->belongsTo(User::class);
-    }
-        public function opportunity()
-    {
-    return $this->belongsTo(InternshipOpportunity::class, 'opportunity_id');
+        return $this->belongsTo(User::class, 'student_id');
     }
 
-
+    public function opportunity()
+    {
+        return $this->belongsTo(InternshipOpportunity::class, 'opportunity_id');
+    }
 }

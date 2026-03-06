@@ -10,9 +10,7 @@ use Illuminate\Support\Str;
 
 class AuthController extends Controller
 {
-    // =========================
-    // جلب جميع المستخدمين
-    // =========================
+    // بجيب جميع المستخدمين
     public function getAllUsers()
     {
         return response()->json([
