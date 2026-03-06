@@ -30,9 +30,9 @@ Route::prefix('v1')->group(function () {
       
          Route::get('/supervisor/students', [ApplicationController::class, 'supervisorStudents']);
  
-        Route::post('/supervisor/approve-student/{id}',  [ApplicationController::class, 'approveStudent']  );
+        Route::post('/supervisor/approve-student/{id}',  [ApplicationController::class, 'supervisorActiveStudentAcouunt']  );
 
-        Route::post(  '/supervisor/reject-student/{id}', [ApplicationController::class, 'rejectStudent']);
+        Route::post(  '/supervisor/reject-student/{id}', [ApplicationController::class, 'rejectActiveStudentAcouunt']);
 
         Route::post('/company/createJob', [JobController::class, 'createJob']);
     Route::post('/company/jobs/{id}', [JobController::class, 'updateJob']);
@@ -43,11 +43,11 @@ Route::post('/application', [ApplicationController::class, 'applyApplication']);
         Route::get('/my-applications', [ApplicationController::class, 'myApplications']);
 
         Route::get('/company/applications', [ApplicationController::class, 'companyApplications']);
-        Route::post('/company/approve/{id}', [ApplicationController::class, 'companyApprove']);
-        Route::post('/company/reject/{id}', [ApplicationController::class, 'companyReject']);
+        Route::post('/company/approve/{id}', [ApplicationController::class, 'companyApplicationApprove']);
+        Route::post('/company/reject/{id}', [ApplicationController::class, 'companyApplicationReject']);
 
         Route::get('/supervisor/applications', [ApplicationController::class, 'supervisorApplications']);
-        Route::post('/supervisor/approve/{id}', [ApplicationController::class, 'supervisorApprove']);
+        Route::post('/supervisor/approve/{id}', [ApplicationController::class, 'supervisorApplicationApprove']);
         Route::post('/supervisor/reject/{id}', [ApplicationController::class, 'supervisorReject']);
     });
 

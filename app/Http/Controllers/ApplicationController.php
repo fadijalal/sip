@@ -10,6 +10,7 @@ use Illuminate\Http\Request;
 class ApplicationController extends Controller
 {
 
+    //الطالب يقدم طلب للوظيفة الي الشركة نزلتها 
     public function applyApplication(Request $request)
     {
         if ($request->user()->role !== 'student') {
@@ -65,7 +66,8 @@ class ApplicationController extends Controller
     }
 
 
-    public function companyApprove(Request $request, $id)
+    //الشركة تقبل طلب الطالب الي قدم عليها 
+    public function companyApplicationApprove(Request $request, $id)
     {
         if ($request->user()->role !== 'company') {
             return response()->json(['message' => 'Unauthorized'], 403);
@@ -85,8 +87,8 @@ class ApplicationController extends Controller
         ]);
     }
 
-
-    public function companyReject(Request $request, $id)
+    //الشركة ترفض طلب الطالب الي قدم عليها 
+    public function companyApplicationReject(Request $request, $id)
     {
         if ($request->user()->role !== 'company') {
             return response()->json(['message' => 'Unauthorized'], 403);
@@ -105,8 +107,8 @@ class ApplicationController extends Controller
         ]);
     }
 
-
-    public function supervisorApprove(Request $request, $id)
+    //المشرف يقبل طلب الطالب الي قدم عليها 
+    public function supervisorApplicationApprove(Request $request, $id)
     {
         if ($request->user()->role !== 'supervisor') {
             return response()->json(['message' => 'Unauthorized'], 403);
@@ -126,7 +128,7 @@ class ApplicationController extends Controller
         ]);
     }
 
-
+    //المشرف ترفض طلب الطالب الي قدم عليها 
     public function supervisorReject(Request $request, $id)
     {
         if ($request->user()->role !== 'supervisor') {
@@ -146,7 +148,7 @@ class ApplicationController extends Controller
         ]);
     }
 
-
+    // الطلبات على الوظائف الي قدم عليها الطالب عرضهم
     public function myApplications(Request $request)
     {
         $applications = Application::where('student_id', $request->user()->id)
@@ -159,13 +161,13 @@ class ApplicationController extends Controller
         ]);
     }
 
-
+    // عرض الطلبات الي قدموها الطلاب على وظيفة الشركة 
     public function companyApplications(Request $request)
     {
         if ($request->user()->role !== 'company') {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
-
+        //الفرص التابعة للركة هاي
         $applications = Application::whereHas('opportunity', function ($q) use ($request) {
             $q->where('company_user_id', $request->user()->id);
         })
@@ -178,7 +180,7 @@ class ApplicationController extends Controller
         ]);
     }
 
-
+    // عرضت طلبات الطلاب للمشرف ليشوفها 
     public function supervisorApplications(Request $request)
     {
         if ($request->user()->role !== 'supervisor') {
@@ -193,7 +195,7 @@ class ApplicationController extends Controller
         ]);
     }
 
-
+    // الطلاب التابعين للمشرف 
     public function supervisorStudents(Request $request)
     {
         if ($request->user()->role !== 'supervisor') {
@@ -211,7 +213,7 @@ class ApplicationController extends Controller
         ]);
     }
 
-    public function approveStudent(Request $request, $id)
+    public function supervisorActiveStudentAcouunt(Request $request, $id)
     {
         // تأكد أن المستخدم مشرف
         if ($request->user()->role !== 'supervisor') {
@@ -229,8 +231,7 @@ class ApplicationController extends Controller
             ], 403);
         }
 
-        // وضع حالة الطالب approved / active
-        $student->status = 'active'; // أو 'approved' حسب التوافق مع جدول المستخدمين
+         $student->status = 'active';  
         $student->save();
 
         return response()->json([
@@ -239,8 +240,8 @@ class ApplicationController extends Controller
             'data' => $student->only(['id', 'name', 'email', 'status', 'supervisor_code'])
         ], 200);
     }
-  
-    public function rejectStudent(Request $request, $id)
+
+    public function rejectActiveStudentAcouunt(Request $request, $id)
     {
         if ($request->user()->role !== 'supervisor') {
             return response()->json(['message' => 'Unauthorized'], 403);
@@ -257,6 +258,4 @@ class ApplicationController extends Controller
             'message' => 'Student rejected'
         ]);
     }
-    
 }
-
