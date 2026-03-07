@@ -24,10 +24,15 @@ Route::prefix('v1')->group(function () {
 
         Route::post('/auth/logout', [AuthController::class, 'logout']);
            Route::get('/auth/users', [AuthController::class, 'getAllUsers']);
- 
-           Route::post('/admin/supervisor/{id}', [AdminController::class, 'updateSupervisorStatus']);
-    Route::post('/admin/company/{id}', [AdminController::class, 'updateCompanyStatus']);
-      
+           
+        Route::middleware(['auth:sanctum', 'admin'])->group(function () {
+
+            Route::post('/admin/supervisor/{id}', [AdminController::class, 'updateSupervisorStatus']);
+            Route::post('/admin/company/{id}', [AdminController::class, 'updateCompanyStatus']);
+        });
+
+
+
          Route::get('/supervisor/students', [ApplicationController::class, 'supervisorStudents']);
  
         Route::post('/supervisor/approve-student/{id}',  [ApplicationController::class, 'supervisorActiveStudentAcouunt']  );
