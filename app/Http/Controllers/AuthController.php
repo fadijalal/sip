@@ -126,6 +126,7 @@ class AuthController extends Controller
 
         $request->validate($rules);
 
+        
         // ---------- منطق السوبرفايزر ----------
         $supervisorCode = null;
 
