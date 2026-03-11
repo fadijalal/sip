@@ -4,13 +4,10 @@ namespace App\Http\Controllers;
 
 use App\Models\Application;
 use App\Models\User;
-
 use Illuminate\Http\Request;
 
 class ApplicationController extends Controller
 {
-
-    //الطالب يقدم طلب للوظيفة الي الشركة نزلتها 
     public function applyApplication(Request $request)
     {
         if ($request->user()->role !== 'student') {
@@ -46,7 +43,6 @@ class ApplicationController extends Controller
         ], 201);
     }
 
-
     private function updateFinalStatus($application)
     {
         if (
@@ -65,8 +61,6 @@ class ApplicationController extends Controller
         }
     }
 
-
-    //الشركة تقبل طلب الطالب الي قدم عليها 
     public function companyApplicationApprove(Request $request, $id)
     {
         if ($request->user()->role !== 'company') {
@@ -74,20 +68,21 @@ class ApplicationController extends Controller
         }
 
         $application = Application::findOrFail($id);
-
         $application->company_status = 'approved';
 
         $this->updateFinalStatus($application);
-
         $application->save();
 
-        return response()->json([
-            'status' => true,
-            'data' => $application
-        ]);
+        if ($request->expectsJson()) {
+            return response()->json([
+                'status' => true,
+                'data' => $application
+            ]);
+        }
+
+        return back()->with('success', 'تم قبول الطلب بنجاح');
     }
 
-    //الشركة ترفض طلب الطالب الي قدم عليها 
     public function companyApplicationReject(Request $request, $id)
     {
         if ($request->user()->role !== 'company') {
@@ -95,19 +90,20 @@ class ApplicationController extends Controller
         }
 
         $application = Application::findOrFail($id);
-
         $application->company_status = 'rejected';
         $application->final_status = 'rejected';
-
         $application->save();
 
-        return response()->json([
-            'status' => true,
-            'data' => $application
-        ]);
+        if ($request->expectsJson()) {
+            return response()->json([
+                'status' => true,
+                'data' => $application
+            ]);
+        }
+
+        return back()->with('success', 'تم رفض الطلب بنجاح');
     }
 
-    //المشرف يقبل طلب الطالب الي قدم عليها 
     public function supervisorApplicationApprove(Request $request, $id)
     {
         if ($request->user()->role !== 'supervisor') {
@@ -115,11 +111,9 @@ class ApplicationController extends Controller
         }
 
         $application = Application::findOrFail($id);
-
         $application->supervisor_status = 'approved';
 
         $this->updateFinalStatus($application);
-
         $application->save();
 
         return response()->json([
@@ -128,7 +122,6 @@ class ApplicationController extends Controller
         ]);
     }
 
-    //المشرف ترفض طلب الطالب الي قدم عليها 
     public function supervisorReject(Request $request, $id)
     {
         if ($request->user()->role !== 'supervisor') {
@@ -136,10 +129,8 @@ class ApplicationController extends Controller
         }
 
         $application = Application::findOrFail($id);
-
         $application->supervisor_status = 'rejected';
         $application->final_status = 'rejected';
-
         $application->save();
 
         return response()->json([
@@ -148,7 +139,6 @@ class ApplicationController extends Controller
         ]);
     }
 
-    // الطلبات على الوظائف الي قدم عليها الطالب عرضهم
     public function myApplications(Request $request)
     {
         $applications = Application::where('student_id', $request->user()->id)
@@ -161,13 +151,12 @@ class ApplicationController extends Controller
         ]);
     }
 
-    // عرض الطلبات الي قدموها الطلاب على وظيفة الشركة 
     public function companyApplications(Request $request)
     {
         if ($request->user()->role !== 'company') {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
-        //الفرص التابعة للركة هاي
+
         $applications = Application::whereHas('opportunity', function ($q) use ($request) {
             $q->where('company_user_id', $request->user()->id);
         })
@@ -180,7 +169,6 @@ class ApplicationController extends Controller
         ]);
     }
 
-    // عرضت طلبات الطلاب للمشرف ليشوفها 
     public function supervisorApplications(Request $request)
     {
         if ($request->user()->role !== 'supervisor') {
@@ -195,14 +183,12 @@ class ApplicationController extends Controller
         ]);
     }
 
-    // الطلاب التابعين للمشرف 
     public function supervisorStudents(Request $request)
     {
         if ($request->user()->role !== 'supervisor') {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        // اختار الأعمدة المطلوبة فقط لتجنب lazy load errors
         $students = User::where('role', 'student')
             ->where('supervisor_code', $request->user()->supervisor_code)
             ->get(['id', 'name', 'email', 'status', 'supervisor_code']);
@@ -215,15 +201,12 @@ class ApplicationController extends Controller
 
     public function supervisorActiveStudentAcouunt(Request $request, $id)
     {
-        // تأكد أن المستخدم مشرف
         if ($request->user()->role !== 'supervisor') {
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        // جلب الطالب والتأكد أنه student
         $student = User::where('id', $id)->where('role', 'student')->firstOrFail();
 
-        // تحقق أن الطالب تابع للمشرف
         if ($student->supervisor_code !== $request->user()->supervisor_code) {
             return response()->json([
                 'status' => false,
@@ -231,7 +214,7 @@ class ApplicationController extends Controller
             ], 403);
         }
 
-         $student->status = 'active';  
+        $student->status = 'active';
         $student->save();
 
         return response()->json([
@@ -248,9 +231,7 @@ class ApplicationController extends Controller
         }
 
         $student = User::findOrFail($id);
-
         $student->status = 'rejected';
-
         $student->save();
 
         return response()->json([
