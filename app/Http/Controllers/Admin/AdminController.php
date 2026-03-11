@@ -9,21 +9,69 @@ use Illuminate\Support\Facades\Auth;
 
 class AdminController extends Controller
 {
+    
     public function adminDashboard()
     {
         abort_unless(Auth::check() && Auth::user()->role === 'admin', 403);
 
         $totalUsers = User::whereIn('role', ['student', 'supervisor'])->count();
         $totalCompanies = User::where('role', 'company')->count();
+        $totalAll = User::count();
+        $currentDate = now()->format('M d, Y');
 
-        return view('admin.dashboard', compact('totalUsers', 'totalCompanies'));
+        $recentActivities = User::select('id', 'name', 'email', 'role', 'status', 'created_at', 'company_name')
+            ->whereIn('role', ['company', 'supervisor'])
+            ->latest()
+            ->take(5)
+            ->get();
+
+        return view('admin.dashboard', compact(
+            'totalUsers',
+            'totalCompanies',
+            'totalAll',
+            'currentDate',
+            'recentActivities'
+        ));
     }
 
     public function adminUsersPage()
     {
         abort_unless(Auth::check() && Auth::user()->role === 'admin', 403);
 
-        return view('admin.users');
+        $supervisors = User::where('role', 'supervisor')
+            ->latest()
+            ->get();
+
+        $totalSupervisors = User::where('role', 'supervisor')->count();
+        $approvedSupervisors = User::where('role', 'supervisor')->where('status', 'active')->count();
+        $pendingSupervisors = User::where('role', 'supervisor')->where('status', 'pending')->count();
+        $rejectedSupervisors = User::where('role', 'supervisor')->where('status', 'rejected')->count();
+
+        return view('admin.users', compact(
+            'supervisors',
+            'totalSupervisors',
+            'approvedSupervisors',
+            'pendingSupervisors',
+            'rejectedSupervisors'
+        ));
+    }
+
+    public function adminCompaniesPage()
+    {
+        abort_unless(Auth::check() && Auth::user()->role === 'admin', 403);
+
+        $companies = User::where('role', 'company')->latest()->get();
+
+        $totalCompanies = User::where('role', 'company')->count();
+        $approvedCompanies = User::where('role', 'company')->where('status', 'active')->count();
+        $pendingCompanies = User::where('role', 'company')->where('status', 'pending')->count();
+
+        return view('admin.companies', compact(
+            'companies',
+            'totalCompanies',
+            'approvedCompanies',
+            'pendingCompanies'
+        ));
     }
 
     // فقط الشركات والمشرفين

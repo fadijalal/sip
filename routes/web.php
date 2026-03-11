@@ -28,7 +28,8 @@ Route::view('/register', 'auth.register')->name('register');
 
 Route::post('/login', [LoginController::class, 'login'])->name('login.process');
 Route::post('/register', [RegisterController::class, 'register'])->name('register.process');
-
+Route::post('/admin/supervisors/{id}/status', [AdminController::class, 'updateSupervisorStatus'])->name('admin.supervisor.status');
+Route::post('/admin/companies/{id}/status', [AdminController::class, 'updateCompanyStatus'])->name('admin.company.status');
 Route::post('/logout', function () {
     Auth::logout();
     request()->session()->invalidate();
@@ -42,24 +43,19 @@ Route::post('/logout', function () {
 | شاشات بعد تسجيل الدخول
 |--------------------------------------------------------------------------
 */
-
 Route::middleware('auth')->group(function () {
 
-    // Admin
     Route::get('/admin/dashboard', [AdminController::class, 'adminDashboard'])->name('admin.dashboard');
     Route::get('/admin/users', [AdminController::class, 'adminUsersPage'])->name('admin.users');
+    Route::get('/admin/companies', [AdminController::class, 'adminCompaniesPage'])->name('admin.companies');
+
     Route::get('/admin/users-data', [AdminController::class, 'getFilteredUsers'])->name('admin.users.data');
 
     Route::post('/admin/supervisors/{id}/status', [AdminController::class, 'updateSupervisorStatus'])->name('admin.supervisor.status');
     Route::post('/admin/companies/{id}/status', [AdminController::class, 'updateCompanyStatus'])->name('admin.company.status');
 
-    // Student
     Route::view('/student/dashboard', 'student.dashboard')->name('student.dashboard');
-
-    // Supervisor
     Route::view('/supervisor/dashboard', 'supervisor.dashboard')->name('supervisor.dashboard');
-
-    // Company
     Route::view('/company/dashboard', 'company.dashboard')->name('company.dashboard');
 });
 

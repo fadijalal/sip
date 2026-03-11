@@ -328,9 +328,12 @@
             <div id="company" class="form-section">
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-building"></i></span>
+                    <input type="text" name="name" class="form-control company-input" placeholder="Company Name" value="{{ old('role') === 'company' ? old('name') : '' }}">
+                </div>
+                <div class="input-group">
+                    <span class="input-group-text"><i class="fa fa-building"></i></span>
                     <input type="text" name="company_name" class="form-control company-input" placeholder="Company Name" value="{{ old('role') === 'company' ? old('company_name') : '' }}">
                 </div>
-
                 <div class="input-group">
                     <span class="input-group-text"><i class="fa fa-envelope"></i></span>
                     <input type="email" name="email" class="form-control company-input" placeholder="Email" value="{{ old('role') === 'company' ? old('email') : '' }}">

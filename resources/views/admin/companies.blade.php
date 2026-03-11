@@ -1,17 +1,17 @@
 @extends('admin.layouts.app')
 
-@section('title', 'Manage Users')
+@section('title', 'Manage Companies')
 
 @section('content')
 <style>
-    .users-stats {
+    .companies-stats {
         display: grid;
-        grid-template-columns: repeat(3, minmax(180px, 1fr));
+        grid-template-columns: repeat(4, minmax(180px, 1fr));
         gap: 22px;
         margin-bottom: 34px;
     }
 
-    .users-stat-card {
+    .companies-stat-card {
         border-radius: 24px;
         padding: 28px 28px 24px;
         min-height: 168px;
@@ -20,37 +20,45 @@
         background: #fff;
     }
 
-    .users-stat-card .label {
+    .companies-stat-card .label {
         font-size: 15px;
         color: #4b5563;
         margin-bottom: 28px;
         font-weight: 500;
     }
 
-    .users-stat-card .value {
+    .companies-stat-card .value {
         font-size: 40px;
         font-weight: 500;
         line-height: 1;
         color: #0f172a;
     }
 
-    .users-stat-card.purple {
-        background: #f3f0ff;
-    }
-
-    .users-stat-card.purple .value {
-        color: #4f46e5;
-    }
-
-    .users-stat-card.green {
+    .companies-stat-card.green {
         background: #edf8f1;
     }
 
-    .users-stat-card.green .value {
+    .companies-stat-card.green .value {
         color: #0f8a3a;
     }
 
-    .users-table-card {
+    .companies-stat-card.orange {
+        background: #f9f2e4;
+    }
+
+    .companies-stat-card.orange .value {
+        color: #d94c0f;
+    }
+
+    .companies-stat-card.blue {
+        background: #eef3ff;
+    }
+
+    .companies-stat-card.blue .value {
+        color: #2454ff;
+    }
+
+    .companies-table-card {
         background: #fff;
         border-radius: 28px;
         border: 1px solid #edf0f5;
@@ -58,17 +66,17 @@
         overflow: hidden;
     }
 
-    .users-table-wrap {
+    .companies-table-wrap {
         width: 100%;
         overflow-x: auto;
     }
 
-    .users-table {
+    .companies-table {
         width: 100%;
         border-collapse: collapse;
     }
 
-    .users-table thead th {
+    .companies-table thead th {
         background: #fbfcfe;
         color: #3f4a5c;
         font-size: 15px;
@@ -79,7 +87,7 @@
         white-space: nowrap;
     }
 
-    .users-table tbody td {
+    .companies-table tbody td {
         padding: 22px 18px;
         border-bottom: 1px solid #edf0f5;
         vertical-align: middle;
@@ -87,50 +95,43 @@
         font-size: 15px;
     }
 
-    .users-table tbody tr:last-child td {
+    .companies-table tbody tr:last-child td {
         border-bottom: none;
     }
 
-    .user-cell {
+    .company-cell {
         display: flex;
         align-items: center;
         gap: 16px;
     }
 
-    .user-icon-box {
+    .company-icon-box {
         width: 50px;
         height: 50px;
         min-width: 50px;
         border-radius: 18px;
-        background: #dbeafe;
-        color: #2563eb;
+        background: #f97316;
+        color: #fff;
         display: flex;
         align-items: center;
         justify-content: center;
         font-size: 24px;
     }
 
-    .user-title {
+    .company-title {
         font-size: 17px;
         font-weight: 500;
         line-height: 1.45;
         color: #1f2937;
     }
 
-    .role-chip {
-        display: inline-flex;
-        align-items: center;
+    .contact-stack {
+        display: flex;
+        flex-direction: column;
         gap: 8px;
-        padding: 8px 16px;
-        border-radius: 999px;
-        background: #e0e7ff;
-        color: #4f46e5;
-        font-size: 14px;
-        font-weight: 500;
-        white-space: nowrap;
     }
 
-    .email-line {
+    .contact-item {
         display: flex;
         align-items: center;
         gap: 10px;
@@ -139,9 +140,21 @@
         white-space: nowrap;
     }
 
-    .email-line i {
+    .contact-item i {
         font-size: 15px;
         color: #667085;
+    }
+
+    .program-box {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        font-size: 15px;
+    }
+
+    .program-box i {
+        color: #2454ff;
+        font-size: 18px;
     }
 
     .status-badge {
@@ -224,104 +237,118 @@
     }
 
     @media (max-width: 1200px) {
-        .users-stats {
+        .companies-stats {
             grid-template-columns: repeat(2, minmax(180px, 1fr));
         }
     }
 
     @media (max-width: 768px) {
-        .users-stats {
+        .companies-stats {
             grid-template-columns: 1fr;
         }
 
-        .users-table {
-            min-width: 920px;
+        .companies-table {
+            min-width: 980px;
         }
     }
 </style>
 
 <div class="topbar">
     <div>
-        <div class="page-title">Manage Users</div>
-        <div class="page-subtitle">View and manage supervisors</div>
+        <div class="page-title">Manage Companies</div>
+        <div class="page-subtitle">View and manage companies</div>
     </div>
 </div>
 
-<div class="users-stats">
-    <div class="users-stat-card">
-        <div class="label">Total Users</div>
-        <div class="value">{{ $totalSupervisors }}</div>
+<div class="companies-stats">
+    <div class="companies-stat-card">
+        <div class="label">Total Companies</div>
+        <div class="value">{{ $totalCompanies }}</div>
     </div>
 
-    <div class="users-stat-card purple">
-        <div class="label">Supervisors</div>
-        <div class="value">{{ $totalSupervisors }}</div>
+    <div class="companies-stat-card green">
+        <div class="label">Approved</div>
+        <div class="value">{{ $approvedCompanies }}</div>
     </div>
 
-    <div class="users-stat-card green">
-        <div class="label">Active</div>
-        <div class="value">{{ $approvedSupervisors }}</div>
+    <div class="companies-stat-card orange">
+        <div class="label">Pending</div>
+        <div class="value">{{ $pendingCompanies }}</div>
+    </div>
+
+    <div class="companies-stat-card blue">
+        <div class="label">Total Programs</div>
+        <div class="value">18</div>
     </div>
 </div>
 
-<div class="users-table-card">
-    <div class="users-table-wrap">
-        <table class="users-table">
+<div class="companies-table-card">
+    <div class="companies-table-wrap">
+        <table class="companies-table">
             <thead>
                 <tr>
-                    <th style="width:28%;">Name</th>
-                    <th style="width:18%;">Role</th>
-                    <th style="width:18%;">University ID</th>
-                    <th style="width:18%;">Email</th>
-                    <th style="width:10%;">Status</th>
+                    <th style="width:26%;">Company</th>
+                    <th style="width:26%;">Contact</th>
+                    <th style="width:14%;">Industry</th>
+                    <th style="width:10%;">Programs</th>
+                    <th style="width:12%;">Status</th>
                     <th style="width:12%;">Actions</th>
                 </tr>
             </thead>
             <tbody>
-                @forelse($supervisors as $supervisor)
+                @forelse($companies as $company)
                 @php
-                $isPending = $supervisor->status === 'pending';
-                $isActive = $supervisor->status === 'active';
-                $isRejected = $supervisor->status === 'rejected';
+                $isPending = $company->status === 'pending';
+                $isActive = $company->status === 'active';
+                $isRejected = $company->status === 'rejected';
                 @endphp
 
-                <tr id="supervisor-row-{{ $supervisor->id }}">
+                <tr id="company-row-{{ $company->id }}">
                     <td>
-                        <div class="user-cell">
-                            <div class="user-icon-box">
-                                <i class="fa-regular fa-user"></i>
+                        <div class="company-cell">
+                            <div class="company-icon-box">
+                                <i class="fa-regular fa-building"></i>
                             </div>
 
                             <div>
-                                <div class="user-title">{{ $supervisor->name }}</div>
+                                <div class="company-title">
+                                    {{ $company->company_name ?? $company->name }}
+                                </div>
                             </div>
                         </div>
                     </td>
 
                     <td>
-                        <span class="role-chip">
-                            <i class="fa-regular fa-shield"></i>
-                            Supervisor
-                        </span>
+                        <div class="contact-stack">
+                            <div class="contact-item">
+                                <i class="fa-regular fa-envelope"></i>
+                                <span>{{ $company->email ?? '-' }}</span>
+                            </div>
+
+                            <div class="contact-item">
+                                <i class="fa-solid fa-phone"></i>
+                                <span>{{ $company->phone_number ?? '-' }}</span>
+                            </div>
+                        </div>
                     </td>
 
-                    <td>{{ $supervisor->university_id ?? '-' }}</td>
+                    <td>Technology</td>
 
                     <td>
-                        <div class="email-line">
-                            <i class="fa-regular fa-envelope"></i>
-                            <span>{{ $supervisor->email ?? '-' }}</span>
+                        <div class="program-box">
+                            <i class="fa-regular fa-clipboard"></i>
+                            <span>3</span>
                         </div>
                     </td>
 
                     <td>
                         <span
-                            id="status-pill-{{ $supervisor->id }}"
+                            id="company-status-pill-{{ $company->id }}"
                             class="status-badge
                                     {{ $isActive ? 'status-approved' : '' }}
                                     {{ $isPending ? 'status-pending' : '' }}
                                     {{ $isRejected ? 'status-rejected' : '' }}">
-                            {{ $isActive ? 'Active' : ucfirst($supervisor->status) }}
+                            {{ $isActive ? 'Approved' : ucfirst($company->status) }}
                         </span>
                     </td>
 
@@ -333,28 +360,28 @@
 
                             @if($isPending)
                             <button
-                                class="table-action-btn approve-btn supervisor-action-btn"
+                                class="table-action-btn approve-btn company-action-btn"
                                 type="button"
                                 title="Approve"
-                                data-id="{{ $supervisor->id }}"
+                                data-id="{{ $company->id }}"
                                 data-action="active">
                                 <i class="fa-solid fa-check"></i>
                             </button>
 
                             <button
-                                class="table-action-btn reject-btn supervisor-action-btn"
+                                class="table-action-btn reject-btn company-action-btn"
                                 type="button"
                                 title="Reject"
-                                data-id="{{ $supervisor->id }}"
+                                data-id="{{ $company->id }}"
                                 data-action="reject">
                                 <i class="fa-solid fa-xmark"></i>
                             </button>
                             @else
                             <button
-                                class="table-action-btn delete-btn supervisor-action-btn"
+                                class="table-action-btn delete-btn company-action-btn"
                                 type="button"
                                 title="Delete"
-                                data-id="{{ $supervisor->id }}"
+                                data-id="{{ $company->id }}"
                                 data-action="delete">
                                 <i class="fa-regular fa-trash-can"></i>
                             </button>
@@ -362,10 +389,10 @@
 
                             @if($isPending)
                             <button
-                                class="table-action-btn delete-btn supervisor-action-btn"
+                                class="table-action-btn delete-btn company-action-btn"
                                 type="button"
                                 title="Delete"
-                                data-id="{{ $supervisor->id }}"
+                                data-id="{{ $company->id }}"
                                 data-action="delete"
                                 style="display:none;">
                                 <i class="fa-regular fa-trash-can"></i>
@@ -376,7 +403,7 @@
                 </tr>
                 @empty
                 <tr>
-                    <td colspan="6" class="text-center py-4">No supervisors found</td>
+                    <td colspan="6" class="text-center py-4">No companies found</td>
                 </tr>
                 @endforelse
             </tbody>
@@ -388,12 +415,12 @@
     document.addEventListener('DOMContentLoaded', function() {
         const csrfToken = '{{ csrf_token() }}';
 
-        document.querySelectorAll('.supervisor-action-btn').forEach(button => {
+        document.querySelectorAll('.company-action-btn').forEach(button => {
             button.addEventListener('click', async function() {
                 const id = this.dataset.id;
                 const action = this.dataset.action;
 
-                if (action === 'delete' && !confirm('Are you sure you want to delete this supervisor?')) {
+                if (action === 'delete' && !confirm('Are you sure you want to delete this company?')) {
                     return;
                 }
 
@@ -401,7 +428,7 @@
                 this.classList.add('disabled-state');
 
                 try {
-                    const response = await fetch(`/admin/supervisors/${id}/status`, {
+                    const response = await fetch(`/admin/companies/${id}/status`, {
                         method: 'POST',
                         headers: {
                             'Content-Type': 'application/json',
@@ -417,16 +444,16 @@
 
                     if (result.status) {
                         if (action === 'delete') {
-                            document.getElementById(`supervisor-row-${id}`).remove();
+                            document.getElementById(`company-row-${id}`).remove();
                             return;
                         }
 
-                        const statusPill = document.getElementById(`status-pill-${id}`);
-                        const row = document.getElementById(`supervisor-row-${id}`);
+                        const statusPill = document.getElementById(`company-status-pill-${id}`);
+                        const row = document.getElementById(`company-row-${id}`);
 
                         if (action === 'active') {
                             statusPill.className = 'status-badge status-approved';
-                            statusPill.textContent = 'Active';
+                            statusPill.textContent = 'Approved';
                         }
 
                         if (action === 'reject') {
@@ -444,7 +471,7 @@
                 } catch (error) {
                     this.disabled = false;
                     this.classList.remove('disabled-state');
-                    alert('Failed to update supervisor');
+                    alert('Failed to update company');
                 }
             });
         });

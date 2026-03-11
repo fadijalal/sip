@@ -17,7 +17,7 @@
             <span>Users</span>
         </a>
 
-        <a href="#">
+        <a href="{{ route('admin.companies') }}" class="{{ request()->routeIs('admin.companies') ? 'active' : '' }}">
             <i class="fa-regular fa-building"></i>
             <span>Companies</span>
         </a>

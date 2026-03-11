@@ -12,7 +12,7 @@
     <div class="topbar-right">
         <div class="date-pill">
             <i class="fa-regular fa-calendar"></i>
-            <span>Dec 28, 2025</span>
+            <span>{{ $currentDate }}</span>
         </div>
 
         <div class="avatar-pill">AD</div>
@@ -29,7 +29,7 @@
         </div>
         <div class="stat-number">{{ $totalUsers }}</div>
         <div class="stat-label">Total Users</div>
-        <div class="stat-note">+12 this week</div>
+        <div class="stat-note">Students + Supervisors</div>
     </div>
 
     <div class="stat-card">
@@ -41,7 +41,7 @@
         </div>
         <div class="stat-number">{{ $totalCompanies }}</div>
         <div class="stat-label">Total Companies</div>
-        <div class="stat-note">+3 pending approval</div>
+        <div class="stat-note">Registered companies</div>
     </div>
 
     <div class="stat-card">
@@ -51,9 +51,9 @@
             </div>
             <div class="trend"><i class="fa-solid fa-arrow-trend-up"></i></div>
         </div>
-        <div class="stat-number">{{ $totalUsers }}</div>
-        <div class="stat-label">Active Programs</div>
-        <div class="stat-note">+8 this month</div>
+        <div class="stat-number">{{ $totalAll }}</div>
+        <div class="stat-label">Total Accounts</div>
+        <div class="stat-note">All system users</div>
     </div>
 </div>
 
@@ -64,97 +64,125 @@
     </div>
 
     <div class="activity-list">
-        <div class="activity-item">
+        @forelse($recentActivities as $user)
+        @php
+        $isCompany = $user->role === 'company';
+        $isPending = $user->status === 'pending';
+        $isActive = $user->status === 'active';
+
+        $iconClass = $isCompany ? 'soft-green' : 'soft-blue';
+        $icon = $isCompany ? 'fa-regular fa-building' : 'fa-regular fa-user';
+
+        $title = $isCompany
+        ? 'Company registration submitted'
+        : 'New supervisor registered';
+
+        $subTitle = $isCompany
+        ? ($user->company_name ?: $user->name)
+        : $user->name;
+
+        $statusClass = $isActive ? 'status-completed' : 'status-pending';
+        $statusText = ucfirst($user->status);
+        @endphp
+
+        <div class="activity-item" id="user-row-{{ $user->id }}">
             <div class="activity-left">
-                <div class="activity-icon soft-blue">
-                    <i class="fa-regular fa-user"></i>
+                <div class="activity-icon {{ $iconClass }}">
+                    <i class="{{ $icon }}"></i>
                 </div>
                 <div>
-                    <div class="activity-title">New supervisor registered</div>
-                    <div class="activity-sub">Dr. Sarah Chen</div>
-                    <div class="activity-date">12/28/2024</div>
+                    <div class="activity-title">{{ $title }}</div>
+                    <div class="activity-sub">{{ $subTitle }}</div>
+                    <div class="activity-date">{{ \Carbon\Carbon::parse($user->created_at)->format('m/d/Y') }}</div>
                 </div>
             </div>
 
             <div class="activity-actions">
-                <span class="status-pill status-completed">Completed</span>
-                <button class="icon-btn"><i class="fa-regular fa-eye"></i></button>
+                <span class="status-pill {{ $statusClass }}" id="status-pill-{{ $user->id }}">
+                    {{ $statusText }}
+                </span>
+
+                <button class="icon-btn" type="button" title="View">
+                    <i class="fa-regular fa-eye"></i>
+                </button>
+
+                @if($isPending)
+                <button
+                    class="icon-btn primary approve-btn"
+                    type="button"
+                    title="Approve"
+                    data-id="{{ $user->id }}"
+                    data-role="{{ $user->role }}">
+                    <i class="fa-solid fa-check"></i>
+                </button>
+                @endif
             </div>
         </div>
-
+        @empty
         <div class="activity-item">
             <div class="activity-left">
-                <div class="activity-icon soft-green">
-                    <i class="fa-regular fa-building"></i>
-                </div>
                 <div>
-                    <div class="activity-title">Company registration pending approval</div>
-                    <div class="activity-sub">TechStart Solutions</div>
-                    <div class="activity-date">12/28/2024</div>
+                    <div class="activity-title">No recent activity found</div>
                 </div>
-            </div>
-
-            <div class="activity-actions">
-                <span class="status-pill status-pending">Pending</span>
-                <button class="icon-btn"><i class="fa-regular fa-eye"></i></button>
-                <button class="icon-btn primary"><i class="fa-solid fa-check"></i></button>
             </div>
         </div>
-
-        <div class="activity-item">
-            <div class="activity-left">
-                <div class="activity-icon soft-orange">
-                    <i class="fa-regular fa-clipboard"></i>
-                </div>
-                <div>
-                    <div class="activity-title">New training program submitted</div>
-                    <div class="activity-sub">DataCorp - Data Science Training</div>
-                    <div class="activity-date">12/27/2024</div>
-                </div>
-            </div>
-
-            <div class="activity-actions">
-                <span class="status-pill status-pending">Pending</span>
-                <button class="icon-btn"><i class="fa-regular fa-eye"></i></button>
-                <button class="icon-btn primary"><i class="fa-solid fa-check"></i></button>
-            </div>
-        </div>
-
-        <div class="activity-item">
-            <div class="activity-left">
-                <div class="activity-icon soft-blue">
-                    <i class="fa-regular fa-user"></i>
-                </div>
-                <div>
-                    <div class="activity-title">Student registration completed</div>
-                    <div class="activity-sub">Emma Wilson</div>
-                    <div class="activity-date">12/27/2024</div>
-                </div>
-            </div>
-
-            <div class="activity-actions">
-                <span class="status-pill status-completed">Completed</span>
-                <button class="icon-btn"><i class="fa-regular fa-eye"></i></button>
-            </div>
-        </div>
-
-        <div class="activity-item">
-            <div class="activity-left">
-                <div class="activity-icon soft-green">
-                    <i class="fa-regular fa-building"></i>
-                </div>
-                <div>
-                    <div class="activity-title">Company approved</div>
-                    <div class="activity-sub">InnovateTech Inc.</div>
-                    <div class="activity-date">12/26/2024</div>
-                </div>
-            </div>
-
-            <div class="activity-actions">
-                <span class="status-pill status-completed">Completed</span>
-                <button class="icon-btn"><i class="fa-regular fa-eye"></i></button>
-            </div>
-        </div>
+        @endforelse
     </div>
 </div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const csrfToken = '{{ csrf_token() }}';
+
+        document.querySelectorAll('.approve-btn').forEach(button => {
+            button.addEventListener('click', async function() {
+                const userId = this.dataset.id;
+                const role = this.dataset.role;
+
+                let url = '';
+
+                if (role === 'supervisor') {
+                    url = `/admin/supervisors/${userId}/status`;
+                } else if (role === 'company') {
+                    url = `/admin/companies/${userId}/status`;
+                }
+
+                if (!url) return;
+
+                this.disabled = true;
+
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': csrfToken,
+                            'Accept': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            action: 'active'
+                        })
+                    });
+
+                    const result = await response.json();
+
+                    if (result.status) {
+                        const statusPill = document.getElementById(`status-pill-${userId}`);
+                        statusPill.classList.remove('status-pending');
+                        statusPill.classList.add('status-completed');
+                        statusPill.textContent = 'Active';
+
+                        this.remove();
+                    } else {
+                        this.disabled = false;
+                        alert(result.message || 'Something went wrong');
+                    }
+                } catch (error) {
+                    this.disabled = false;
+                    alert('Failed to update user status');
+                }
+            });
+        });
+    });
+</script>
 @endsection
