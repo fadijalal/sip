@@ -1,23 +1,25 @@
 <?php
 
-use App\Http\Controllers\AdminController;
+use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\ApplicationController;
-use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Auth\LoginController;
+use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\Auth\AuthController;
 use App\Http\Controllers\JobController;
 use App\Http\Controllers\KanbanTaskController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
 Route::prefix('v1')->group(function () {
-    Route::post('/auth/login', [AuthController::class, 'login']);
-    Route::post('/auth/register', [AuthController::class, 'register']);
+    Route::post('/auth/login', [LoginController::class, 'login']);
+    Route::post('/auth/register', [RegisterController::class, 'register']);
 
     Route::middleware('auth:sanctum')->group(function () {
         Route::get('/auth/me', function (Request $request) {
             return $request->user();
         });
 
-        Route::post('/auth/logout', [AuthController::class, 'logout']);
+        Route::post('/auth/logout', [LoginController::class, 'logout']);
         Route::get('/auth/users', [AuthController::class, 'getAllUsers']);
 
         Route::middleware(['auth:sanctum', 'admin'])->group(function () {
