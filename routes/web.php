@@ -11,6 +11,7 @@ use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\company\ApplicationsCompanyController;
 use App\Http\Controllers\company\ProgramsCompanyController;
 use App\Http\Controllers\company\DashboardCompanyController;
+use App\Http\Controllers\SupervisorController;
 
 /*
 |--------------------------------------------------------------------------
@@ -79,7 +80,19 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/company/applications/{id}/approve', [ApplicationController::class, 'companyApplicationApprove'])->name('company.applications.approve');
     Route::post('/company/applications/{id}/reject', [ApplicationController::class, 'companyApplicationReject'])->name('company.applications.reject');
-});
+
+
+    Route::get('/supervisor/dashboard', [SupervisorController::class, 'dashboard'])->name('supervisor.dashboard');
+
+    Route::get('/supervisor/students', [SupervisorController::class, 'studentsPage'])->name('supervisor.students.index');
+    Route::get('/supervisor/pending-students', [SupervisorController::class, 'pendingStudentsPage'])->name('supervisor.students.pending');
+
+    Route::post('/supervisor/students/{id}/approve', [ApplicationController::class, 'supervisorActiveStudentAcouunt'])->name('supervisor.students.approve');
+    Route::post('/supervisor/students/{id}/reject', [ApplicationController::class, 'rejectActiveStudentAcouunt'])->name('supervisor.students.reject');
+
+    Route::get('/supervisor/weekly-tasks', [SupervisorController::class, 'weeklyTasksPage'])->name('supervisor.weekly-tasks');
+
+    });
 
 Route::view('/board', 'board')->name('board');
 

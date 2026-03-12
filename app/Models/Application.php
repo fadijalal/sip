@@ -28,6 +28,7 @@ class Application extends Model
         'approved_at' => 'datetime',
         'training_completed_at' => 'datetime',
     ];
+ 
 
     public function student(): BelongsTo
     {
