@@ -14,7 +14,7 @@
 
         <a href="{{ route('admin.users') }}" class="{{ request()->routeIs('admin.users') ? 'active' : '' }}">
             <i class="fa-regular fa-user"></i>
-            <span>Users</span>
+            <span>Supervisiors</span>
         </a>
 
         <a href="{{ route('admin.companies') }}" class="{{ request()->routeIs('admin.companies') ? 'active' : '' }}">

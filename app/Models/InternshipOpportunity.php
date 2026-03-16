@@ -23,7 +23,7 @@ class InternshipOpportunity extends Model
         'status',
     ];
 
-    public function company(): BelongsTo
+    public function companyUser(): BelongsTo
     {
         return $this->belongsTo(User::class, 'company_user_id');
     }

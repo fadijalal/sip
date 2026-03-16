@@ -64,85 +64,79 @@ class ApplicationController extends Controller
     public function companyApplicationApprove(Request $request, $id)
     {
         if ($request->user()->role !== 'company') {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            abort(403, 'Unauthorized');
         }
 
-        $application = Application::findOrFail($id);
+        $application = Application::with(['student', 'opportunity'])->findOrFail($id);
+
+        if (!$application->opportunity || $application->opportunity->company_user_id != $request->user()->id) {
+            abort(403, 'هذا الطلب لا يتبع لشركتك');
+        }
+
         $application->company_status = 'approved';
 
         $this->updateFinalStatus($application);
+
         $application->save();
 
-        if ($request->expectsJson()) {
-            return response()->json([
-                'status' => true,
-                'data' => $application
-            ]);
-        }
-
-        return back()->with('success', 'تم قبول الطلب بنجاح');
+        return back()->with('success', 'تمت موافقة الشركة على الطلب بنجاح');
     }
 
     public function companyApplicationReject(Request $request, $id)
     {
         if ($request->user()->role !== 'company') {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            abort(403, 'Unauthorized');
         }
 
-        $application = Application::findOrFail($id);
+        $application = Application::with(['student', 'opportunity'])->findOrFail($id);
+
+        if (!$application->opportunity || $application->opportunity->company_user_id != $request->user()->id) {
+            abort(403, 'هذا الطلب لا يتبع لشركتك');
+        }
+
         $application->company_status = 'rejected';
         $application->final_status = 'rejected';
         $application->save();
 
-        if ($request->expectsJson()) {
-            return response()->json([
-                'status' => true,
-                'data' => $application
-            ]);
-        }
-
-        return back()->with('success', 'تم رفض الطلب بنجاح');
+        return back()->with('success', 'تم رفض الطلب من الشركة');
     }
 
     public function supervisorApplicationApprove(Request $request, $id)
     {
         if ($request->user()->role !== 'supervisor') {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            abort(403, 'Unauthorized');
         }
 
-        $application = Application::findOrFail($id);
+        $application = Application::with(['student', 'opportunity'])->findOrFail($id);
+
+        if (!$application->student || $application->student->supervisor_code !== $request->user()->supervisor_code) {
+            abort(403, 'هذا الطلب لا يتبع لطلابك');
+        }
+
         $application->supervisor_status = 'approved';
 
         $this->updateFinalStatus($application);
+
         $application->save();
 
-        if ($request->expectsJson()) {
-            return response()->json([
-                'status' => true,
-                'data' => $application
-            ]);
-        }
-
-        return back()->with('success', 'تمت موافقة المشرف على الطلب');
+        return back()->with('success', 'تمت موافقة المشرف على الطلب بنجاح');
     }
 
     public function supervisorReject(Request $request, $id)
     {
         if ($request->user()->role !== 'supervisor') {
-            return response()->json(['message' => 'Unauthorized'], 403);
+            abort(403, 'Unauthorized');
         }
 
-        $application = Application::findOrFail($id);
+        $application = Application::with(['student', 'opportunity'])->findOrFail($id);
+
+        if (!$application->student || $application->student->supervisor_code !== $request->user()->supervisor_code) {
+            abort(403, 'هذا الطلب لا يتبع لطلابك');
+        }
+
         $application->supervisor_status = 'rejected';
         $application->final_status = 'rejected';
         $application->save();
-
-        if ($request->expectsJson()) {
-            return response()->json([
-                'status' => true,
-                'data' => $application
-            ]);
-        }
 
         return back()->with('success', 'تم رفض الطلب من المشرف');
     }
@@ -183,10 +177,11 @@ class ApplicationController extends Controller
             return response()->json(['message' => 'Unauthorized'], 403);
         }
 
-        $applications = Application::whereHas('student', function ($q) use ($request) {
-            $q->where('supervisor_code', $request->user()->supervisor_code);
-        })
-            ->with(['student', 'opportunity'])
+        $applications = Application::with(['student', 'opportunity'])
+            ->whereHas('student', function ($q) use ($request) {
+                $q->where('supervisor_code', $request->user()->supervisor_code);
+            })
+            ->latest()
             ->get();
 
         return response()->json([
@@ -203,7 +198,7 @@ class ApplicationController extends Controller
 
         $students = User::where('role', 'student')
             ->where('supervisor_code', $request->user()->supervisor_code)
-            ->get(['id', 'name', 'email', 'status', 'supervisor_code', 'university_id', 'phone_number']);
+            ->get(['id', 'name', 'email', 'status', 'supervisor_code']);
 
         return response()->json([
             'status' => true,
@@ -229,15 +224,11 @@ class ApplicationController extends Controller
         $student->status = 'active';
         $student->save();
 
-        if ($request->expectsJson()) {
-            return response()->json([
-                'status' => true,
-                'message' => 'تم تفعيل حساب الطالب بنجاح',
-                'data' => $student->only(['id', 'name', 'email', 'status', 'supervisor_code'])
-            ], 200);
-        }
-
-        return back()->with('success', 'تم تفعيل حساب الطالب بنجاح');
+        return response()->json([
+            'status' => true,
+            'message' => 'تم تفعيل حساب الطالب بنجاح',
+            'data' => $student->only(['id', 'name', 'email', 'status', 'supervisor_code'])
+        ], 200);
     }
 
     public function rejectActiveStudentAcouunt(Request $request, $id)
@@ -247,24 +238,12 @@ class ApplicationController extends Controller
         }
 
         $student = User::findOrFail($id);
-
-        if ($student->supervisor_code !== $request->user()->supervisor_code) {
-            return response()->json([
-                'status' => false,
-                'message' => 'لا يمكنك رفض طالب ليس من طلابك'
-            ], 403);
-        }
-
         $student->status = 'rejected';
         $student->save();
 
-        if ($request->expectsJson()) {
-            return response()->json([
-                'status' => true,
-                'message' => 'Student rejected'
-            ]);
-        }
-
-        return back()->with('success', 'تم رفض الطالب');
+        return response()->json([
+            'status' => true,
+            'message' => 'Student rejected'
+        ]);
     }
 }

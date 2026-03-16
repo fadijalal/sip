@@ -15,13 +15,13 @@ class AuthController extends Controller
         ]);
     }
 
-    public function adminDashboard()
-    {
-        $totalUsers = User::whereIn('role', ['student', 'supervisor'])->count();
-        $totalCompanies = User::where('role', 'company')->count();
+    // public function adminDashboard()
+    // {
+    //     $totalUsers = User::whereIn('role', ['student', 'supervisor'])->count();
+    //     $totalCompanies = User::where('role', 'company')->count();
 
-        return view('admin.dashboard', compact('totalUsers', 'totalCompanies'));
-    }
+    //     return view('admin.dashboard', compact('totalUsers', 'totalCompanies'));
+    // }
 
   
  

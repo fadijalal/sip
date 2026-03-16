@@ -15,9 +15,16 @@ class KanbanTaskController extends Controller
     private function allowedApplicationsQuery($user): Builder
     {
         return match ($user->role) {
-            'student' => Application::query()->where('student_id', $user->id),
-            'company' => Application::query()->whereHas('opportunity', fn (Builder $q) => $q->where('company_user_id', $user->id)),
-            'supervisor' => Application::query()->whereHas('student', fn (Builder $q) => $q->where('supervisor_code', $user->supervisor_code)),
+            'student' => Application::query()
+                ->where('student_id', $user->id)
+                ->where('final_status', 'approved'),
+
+            'company' => Application::query()
+                ->whereHas('opportunity', fn(Builder $q) => $q->where('company_user_id', $user->id)),
+
+            'supervisor' => Application::query()
+                ->whereHas('student', fn(Builder $q) => $q->where('supervisor_code', $user->supervisor_code)),
+
             default => Application::query()->whereRaw('1 = 0'),
         };
     }
@@ -279,8 +286,8 @@ class KanbanTaskController extends Controller
                 $q->whereNull('company_score')->orWhereNull('supervisor_score');
             })->exists();
 
-        abort_if($hasUngradedDoneTasks, 422, 'íÌÈ ÊÞííã ßá ÇáãåÇã ÇáãäÌÒÉ ÃæáÇð.');
-        abort_if($app->company_final_score === null || $app->supervisor_final_score === null, 422, 'íÌÈ ÅÏÎÇá ÚáÇãÉ ÇáÔÑßÉ æÇáãÔÑÝ ÃæáÇð.');
+        abort_if($hasUngradedDoneTasks, 422, 'ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½.');
+        abort_if($app->company_final_score === null || $app->supervisor_final_score === null, 422, 'ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½.');
 
         $app->final_score = (int) round(($app->company_final_score + $app->supervisor_final_score) / 2);
         $app->training_completed_at = now();

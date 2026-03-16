@@ -81,7 +81,7 @@ class AdminController extends Controller
 
         $users = User::select('id', 'name', 'email', 'role', 'status', 'created_at')
             ->whereIn('role', ['company', 'supervisor'])
-            ->orderBy('id', 'desc')
+            ->orderBy('id', 'desc')//ترتيب تنازلي
             ->get();
 
         return response()->json([

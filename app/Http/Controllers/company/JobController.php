@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\company;
 
 use Illuminate\Http\Request;
 use App\Models\InternshipOpportunity;
+use App\Http\Controllers\Controller;
 
 class JobController extends Controller
 {

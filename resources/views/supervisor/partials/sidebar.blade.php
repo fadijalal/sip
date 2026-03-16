@@ -15,6 +15,11 @@
         <span>Dashboard</span>
     </a>
 
+    <a href="{{ route('supervisor.applications.index') }}"
+        class="nav-link-custom {{ request()->routeIs('supervisor.applications.*') ? 'active' : '' }}">
+        <i class="bi bi-file-earmark-text"></i> Applications
+    </a>
+    
     <a href="{{ route('supervisor.students.index') }}"
         class="nav-link-custom {{ request()->routeIs('supervisor.students.index') ? 'active' : '' }}">
         <i class="bi bi-people"></i>

@@ -6,13 +6,14 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Admin\AdminController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\RegisterController;
-use App\Http\Controllers\JobController;
+use App\Http\Controllers\company\JobController;
 use App\Http\Controllers\ApplicationController;
 use App\Http\Controllers\company\ApplicationsCompanyController;
 use App\Http\Controllers\company\ProgramsCompanyController;
 use App\Http\Controllers\company\DashboardCompanyController;
 use App\Http\Controllers\SupervisorController;
-
+use App\Http\Controllers\StudentController;
+use App\Http\Controllers\SupervisorApplicationsController;
 /*
 |--------------------------------------------------------------------------
 | صفحات عامة
@@ -25,8 +26,7 @@ Route::get('/', function () {
 
 Route::view('/login', 'auth.login')->name('login');
 Route::view('/register', 'auth.register')->name('register');
-
-/*
+ /*
 |--------------------------------------------------------------------------
 | تنفيذ العمليات
 |--------------------------------------------------------------------------
@@ -89,9 +89,31 @@ Route::middleware('auth')->group(function () {
 
     Route::post('/supervisor/students/{id}/approve', [ApplicationController::class, 'supervisorActiveStudentAcouunt'])->name('supervisor.students.approve');
     Route::post('/supervisor/students/{id}/reject', [ApplicationController::class, 'rejectActiveStudentAcouunt'])->name('supervisor.students.reject');
+    Route::get('/supervisor/applications', [SupervisorController::class, 'applicationsPage'])->name('supervisor.applications.index');
 
+    Route::post('/supervisor/applications/{id}/approve', [ApplicationController::class, 'supervisorApplicationApprove'])
+        ->name('supervisor.applications.approve');
+
+    Route::post('/supervisor/applications/{id}/reject', [ApplicationController::class, 'supervisorReject'])
+        ->name('supervisor.applications.reject');
+        
     Route::get('/supervisor/weekly-tasks', [SupervisorController::class, 'weeklyTasksPage'])->name('supervisor.weekly-tasks');
 
+    Route::get('/student/dashboard', [StudentController::class, 'dashboard'])->name('student.dashboard');
+
+    Route::get('/student/programs', [StudentController::class, 'programs'])->name('student.programs.index');
+    Route::get('/student/programs/{id}', [StudentController::class, 'programShow'])->name('student.programs.show');
+
+    Route::post('/student/applications', [ApplicationController::class, 'applyApplication'])->name('student.applications.store');
+    Route::get('/student/applications', [StudentController::class, 'applications'])->name('student.applications.index');
+
+    Route::get('/student/workspace', [StudentController::class, 'workspace'])->name('student.workspace.index');
+    Route::get('/supervisor/applications', [SupervisorApplicationsController::class, 'index'])->name('supervisor.applications.index');
+    Route::get('/supervisor/applications/{id}', [SupervisorApplicationsController::class, 'show'])->name('supervisor.applications.show');
+
+    Route::post('/supervisor/applications/{id}/approve', [ApplicationController::class, 'supervisorApplicationApprove'])->name('supervisor.applications.approve');
+    Route::post('/supervisor/applications/{id}/reject', [ApplicationController::class, 'supervisorReject'])->name('supervisor.applications.reject');
+    
     });
 
 Route::view('/board', 'board')->name('board');
