@@ -2,149 +2,84 @@
 
 namespace App\Http\Controllers\company;
 
-use Illuminate\Http\Request;
-use App\Models\InternshipOpportunity;
 use App\Http\Controllers\Controller;
+use App\Models\InternshipOpportunity;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 
 class JobController extends Controller
 {
-    public function createJob(Request $request)
+    public function createJob(Request $request): RedirectResponse
     {
-        if ($request->user()->role !== 'company') {
-            return response()->json([
-                'status' => false,
-                'message' => 'فقط حساب الشركة يمكنه إضافة وظائف'
-            ], 403);
-        }
+        abort_unless($request->user() && $request->user()->role === 'company', 403);
 
         $validated = $request->validate([
-            'title'            => 'required|string|max:255',
-            'description'      => 'required|string',
-            'type'             => 'required|in:training,job',
-            'field'            => 'nullable|string|max:255',
-            'city'             => 'nullable|string|max:255',
-            'work_type'        => 'nullable|in:onsite,remote,hybrid',
-            'requirements'     => 'nullable|string',
-            'education_level'  => 'nullable|string|max:255',
-            'duration'         => 'nullable|integer|min:1',
-            'deadline'         => 'nullable|date',
-            'status'           => 'nullable|in:open,closed',
+            'title' => ['required', 'string', 'max:255'],
+            'description' => ['required', 'string'],
+            'type' => ['required', 'in:training,job'],
+            'field' => ['nullable', 'string', 'max:255'],
+            'city' => ['nullable', 'string', 'max:255'],
+            'work_type' => ['nullable', 'in:onsite,remote,hybrid'],
+            'requirements' => ['nullable', 'string'],
+            'education_level' => ['nullable', 'string', 'max:255'],
+            'duration' => ['nullable', 'integer', 'min:1'],
+            'deadline' => ['nullable', 'date'],
+            'status' => ['nullable', 'in:open,closed'],
         ]);
 
-        $job = InternshipOpportunity::create([
-            'company_user_id'  => $request->user()->id,
-            'title'            => $validated['title'],
-            'description'      => $validated['description'],
-            'type'             => $validated['type'],
-            'field'            => $validated['field'] ?? null,
-            'city'             => $validated['city'] ?? null,
-            'work_type'        => $validated['work_type'] ?? null,
-            'requirements'     => $validated['requirements'] ?? null,
-            'education_level'  => $validated['education_level'] ?? null,
-            'duration'         => $validated['duration'] ?? null,
-            'deadline'         => $validated['deadline'] ?? null,
-            'status'           => $validated['status'] ?? 'open',
+        InternshipOpportunity::create([
+            'company_user_id' => $request->user()->id,
+            'title' => $validated['title'],
+            'description' => $validated['description'],
+            'type' => $validated['type'],
+            'field' => $validated['field'] ?? null,
+            'city' => $validated['city'] ?? null,
+            'work_type' => $validated['work_type'] ?? null,
+            'requirements' => $validated['requirements'] ?? null,
+            'education_level' => $validated['education_level'] ?? null,
+            'duration' => $validated['duration'] ?? null,
+            'deadline' => $validated['deadline'] ?? null,
+            'status' => $validated['status'] ?? 'open',
         ]);
 
-        if ($request->expectsJson()) {
-            return response()->json([
-                'status' => true,
-                'data'   => $job,
-            ], 201);
-        }
-
-        return redirect()->route('company.programs.index')
-            ->with('success', 'تم إنشاء الفرصة بنجاح');
+        return redirect()->route('company.programs.index')->with('success', '�� ����� ������ �����.');
     }
 
-    public function updateJob(Request $request, $id)
+    public function updateJob(Request $request, int $id): RedirectResponse
     {
-        if ($request->user()->role !== 'company') {
-            return response()->json([
-                'status' => false,
-                'message' => 'فقط حساب الشركة يمكنه تعديل الوظائف'
-            ], 403);
-        }
+        abort_unless($request->user() && $request->user()->role === 'company', 403);
 
-        $job = InternshipOpportunity::find($id);
-
-        if (!$job) {
-            return response()->json([
-                'status' => false,
-                'message' => 'الوظيفة غير موجودة'
-            ], 404);
-        }
-
-        if ($job->company_user_id !== $request->user()->id) {
-            return response()->json([
-                'status' => false,
-                'message' => 'غير مسموح لك تعديل هذه الوظيفة'
-            ], 403);
-        }
+        $job = InternshipOpportunity::findOrFail($id);
+        abort_unless((int) $job->company_user_id === (int) $request->user()->id, 403);
 
         $validated = $request->validate([
-            'title'            => 'sometimes|required|string|max:255',
-            'description'      => 'sometimes|required|string',
-            'type'             => 'sometimes|required|in:training,job',
-            'field'            => 'nullable|string|max:255',
-            'city'             => 'nullable|string|max:255',
-            'work_type'        => 'nullable|in:onsite,remote,hybrid',
-            'requirements'     => 'nullable|string',
-            'education_level'  => 'nullable|string|max:255',
-            'duration'         => 'nullable|integer|min:1',
-            'deadline'         => 'nullable|date',
-            'status'           => 'nullable|in:open,closed',
+            'title' => ['sometimes', 'required', 'string', 'max:255'],
+            'description' => ['sometimes', 'required', 'string'],
+            'type' => ['sometimes', 'required', 'in:training,job'],
+            'field' => ['nullable', 'string', 'max:255'],
+            'city' => ['nullable', 'string', 'max:255'],
+            'work_type' => ['nullable', 'in:onsite,remote,hybrid'],
+            'requirements' => ['nullable', 'string'],
+            'education_level' => ['nullable', 'string', 'max:255'],
+            'duration' => ['nullable', 'integer', 'min:1'],
+            'deadline' => ['nullable', 'date'],
+            'status' => ['nullable', 'in:open,closed'],
         ]);
 
         $job->update($validated);
 
-        if ($request->expectsJson()) {
-            return response()->json([
-                'status' => true,
-                'message' => 'تم تعديل الوظيفة بنجاح',
-                'data' => $job
-            ]);
-        }
-
-        return redirect()->route('company.programs.index')
-            ->with('success', 'تم تعديل الفرصة بنجاح');
+        return redirect()->route('company.programs.index')->with('success', '�� ����� ������ �����.');
     }
 
-    public function deleteJob(Request $request, $id)
+    public function deleteJob(Request $request, int $id): RedirectResponse
     {
-        if ($request->user()->role !== 'company') {
-            return response()->json([
-                'status' => false,
-                'message' => 'فقط حساب الشركة يمكنه حذف الوظائف'
-            ], 403);
-        }
+        abort_unless($request->user() && $request->user()->role === 'company', 403);
 
-        $job = InternshipOpportunity::find($id);
-
-        if (!$job) {
-            return response()->json([
-                'status' => false,
-                'message' => 'الوظيفة غير موجودة'
-            ], 404);
-        }
-
-        if ($job->company_user_id !== $request->user()->id) {
-            return response()->json([
-                'status' => false,
-                'message' => 'غير مسموح لك حذف هذه الوظيفة'
-            ], 403);
-        }
+        $job = InternshipOpportunity::findOrFail($id);
+        abort_unless((int) $job->company_user_id === (int) $request->user()->id, 403);
 
         $job->delete();
 
-        if ($request->expectsJson()) {
-            return response()->json([
-                'status' => true,
-                'message' => 'تم حذف الوظيفة بنجاح'
-            ]);
-        }
-
-        return redirect()->route('company.programs.index')
-            ->with('success', 'تم حذف الفرصة بنجاح');
+        return redirect()->route('company.programs.index')->with('success', '�� ��� ������ �����.');
     }
 }

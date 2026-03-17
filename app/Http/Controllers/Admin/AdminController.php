@@ -3,16 +3,44 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use Illuminate\Http\Request;
 use App\Models\User;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
 class AdminController extends Controller
 {
-    
-    public function adminDashboard()
+    private function ensureAdmin(): void
     {
         abort_unless(Auth::check() && Auth::user()->role === 'admin', 403);
+    }
+
+
+
+    public function adminUsersPage()
+    {
+        $this->ensureAdmin();
+
+        $supervisors = User::where('role', 'supervisor')->latest()->get();
+
+        $totalSupervisors = User::where('role', 'supervisor')->count();
+        $approvedSupervisors = User::where('role', 'supervisor')->where('status', 'active')->count();
+        $pendingSupervisors = User::where('role', 'supervisor')->where('status', 'pending')->count();
+        $rejectedSupervisors = User::where('role', 'supervisor')->where('status', 'rejected')->count();
+
+        return view('admin.users', compact(
+            'supervisors',
+            'totalSupervisors',
+            'approvedSupervisors',
+            'pendingSupervisors',
+            'rejectedSupervisors'
+        ));
+    }
+
+
+    public function adminDashboard()
+    {
+        $this->ensureAdmin();
 
         $totalUsers = User::whereIn('role', ['student', 'supervisor'])->count();
         $totalCompanies = User::where('role', 'company')->count();
@@ -33,32 +61,13 @@ class AdminController extends Controller
             'recentActivities'
         ));
     }
+    //
 
-    public function adminUsersPage()
-    {
-        abort_unless(Auth::check() && Auth::user()->role === 'admin', 403);
-
-        $supervisors = User::where('role', 'supervisor')
-            ->latest()
-            ->get();
-
-        $totalSupervisors = User::where('role', 'supervisor')->count();
-        $approvedSupervisors = User::where('role', 'supervisor')->where('status', 'active')->count();
-        $pendingSupervisors = User::where('role', 'supervisor')->where('status', 'pending')->count();
-        $rejectedSupervisors = User::where('role', 'supervisor')->where('status', 'rejected')->count();
-
-        return view('admin.users', compact(
-            'supervisors',
-            'totalSupervisors',
-            'approvedSupervisors',
-            'pendingSupervisors',
-            'rejectedSupervisors'
-        ));
-    }
+    
 
     public function adminCompaniesPage()
     {
-        abort_unless(Auth::check() && Auth::user()->role === 'admin', 403);
+        $this->ensureAdmin();
 
         $companies = User::where('role', 'company')->latest()->get();
 
@@ -74,101 +83,47 @@ class AdminController extends Controller
         ));
     }
 
-    // فقط الشركات والمشرفين
-    public function getFilteredUsers()
+    public function updateSupervisorStatus(Request $request, int $id): RedirectResponse
     {
-        abort_unless(Auth::check() && Auth::user()->role === 'admin', 403);
+        $this->ensureAdmin();
 
-        $users = User::select('id', 'name', 'email', 'role', 'status', 'created_at')
-            ->whereIn('role', ['company', 'supervisor'])
-            ->orderBy('id', 'desc')//ترتيب تنازلي
-            ->get();
-
-        return response()->json([
-            'status' => true,
-            'data' => $users
+        $validated = $request->validate([
+            'action' => ['required', 'in:active,reject,delete'],
         ]);
-    }
-
-    // تفعيل / رفض / حذف مشرف
-    public function updateSupervisorStatus(Request $request, $id)
-    {
-        abort_unless(Auth::check() && Auth::user()->role === 'admin', 403);
 
         $supervisor = User::where('id', $id)->where('role', 'supervisor')->firstOrFail();
 
-        $request->validate([
-            'action' => 'required|in:active,reject,delete'
-        ]);
-
-        if ($request->action === 'active') {
-            $supervisor->status = 'active';
-            $supervisor->save();
-
-            return response()->json([
-                'status' => true,
-                'message' => 'تم تفعيل حساب المشرف'
-            ], 200);
-        }
-
-        if ($request->action === 'reject') {
-            $supervisor->status = 'rejected';
-            $supervisor->save();
-
-            return response()->json([
-                'status' => true,
-                'message' => 'تم تعطيل حساب المشرف'
-            ], 200);
-        }
-
-        if ($request->action === 'delete') {
+        if ($validated['action'] === 'delete') {
             $supervisor->delete();
 
-            return response()->json([
-                'status' => true,
-                'message' => 'تم حذف حساب المشرف'
-            ], 200);
+            return back()->with('success', 'Supervisor deleted successfully.');
         }
+
+        $supervisor->status = $validated['action'] === 'active' ? 'active' : 'rejected';
+        $supervisor->save();
+
+        return back()->with('success', 'Supervisor status updated successfully.');
     }
 
-    // تفعيل / رفض / حذف شركة
-    public function updateCompanyStatus(Request $request, $id)
+    public function updateCompanyStatus(Request $request, int $id): RedirectResponse
     {
-        abort_unless(Auth::check() && Auth::user()->role === 'admin', 403);
+        $this->ensureAdmin();
+
+        $validated = $request->validate([
+            'action' => ['required', 'in:active,reject,delete'],
+        ]);
 
         $company = User::where('id', $id)->where('role', 'company')->firstOrFail();
 
-        $request->validate([
-            'action' => 'required|in:active,reject,delete'
-        ]);
-
-        if ($request->action === 'active') {
-            $company->status = 'active';
-            $company->save();
-
-            return response()->json([
-                'status' => true,
-                'message' => 'تم تفعيل حساب الشركة'
-            ], 200);
-        }
-
-        if ($request->action === 'reject') {
-            $company->status = 'rejected';
-            $company->save();
-
-            return response()->json([
-                'status' => true,
-                'message' => 'تم تعطيل الشركة'
-            ], 200);
-        }
-
-        if ($request->action === 'delete') {
+        if ($validated['action'] === 'delete') {
             $company->delete();
 
-            return response()->json([
-                'status' => true,
-                'message' => 'تم حذف الشركة'
-            ], 200);
+            return back()->with('success', 'Company deleted successfully.');
         }
+
+        $company->status = $validated['action'] === 'active' ? 'active' : 'rejected';
+        $company->save();
+
+        return back()->with('success', 'Company status updated successfully.');
     }
 }

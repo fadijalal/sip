@@ -1,7 +1,10 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\supervisior;
 
+use App\Http\Controllers\Controller;
+use Illuminate\Http\RedirectResponse;
+use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Models\Application;
 use App\Models\User;
@@ -9,9 +12,41 @@ use Illuminate\Support\Facades\Auth;
 
 class SupervisorController extends Controller
 {
-    public function dashboard()
+    private function ensureRole(): void
     {
         abort_unless(Auth::check() && Auth::user()->role === 'supervisor', 403);
+    }
+
+    public function supervisorActiveStudentAcouunt(Request $request, int $id): RedirectResponse
+    {
+        $this->ensureRole();
+
+        $student = User::where('id', $id)->where('role', 'student')->firstOrFail();
+
+        if ($student->supervisor_code !== $request->user()->supervisor_code) {
+            return back()->with('error', 'You are not the supervisor of this student.');
+        }
+
+        $student->status = 'active';
+        $student->save();
+
+        return back()->with('success', 'successfully activated the student account.');
+    }
+
+    public function rejectActiveStudentAcouunt(Request $request, int $id): RedirectResponse
+    {
+        $this->ensureRole();
+
+        $student = User::where('id', $id)->where('role', 'student')->firstOrFail();
+        $student->status = 'rejected';
+        $student->save();
+
+        return back()->with('success', 'successfully rejected the student account.');
+    }
+
+    public function dashboard()
+    {
+        $this->ensureRole();
 
         $supervisor = Auth::user();
 
@@ -57,7 +92,7 @@ class SupervisorController extends Controller
 
     public function studentsPage()
     {
-        abort_unless(Auth::check() && Auth::user()->role === 'supervisor', 403);
+        $this->ensureRole();
 
         $supervisor = Auth::user();
 
@@ -115,7 +150,7 @@ class SupervisorController extends Controller
 
     public function pendingStudentsPage()
     {
-        abort_unless(Auth::check() && Auth::user()->role === 'supervisor', 403);
+        $this->ensureRole();
 
         $supervisor = Auth::user();
 
@@ -130,7 +165,7 @@ class SupervisorController extends Controller
 
     public function weeklyTasksPage()
     {
-        abort_unless(Auth::check() && Auth::user()->role === 'supervisor', 403);
+        $this->ensureRole();
 
         return view('supervisor.weekly-tasks');
     }

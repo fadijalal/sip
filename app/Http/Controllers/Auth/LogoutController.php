@@ -3,20 +3,20 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class LogoutController extends Controller
 {
-    // =========================
-    // تسجيل الخروج
-    // =========================
-    public function logout(Request $request)
+    public function logout(Request $request): RedirectResponse
     {
-        $request->user()->currentAccessToken()->delete();
+        if (Auth::check()) {
+            Auth::guard('web')->logout();
+            $request->session()->invalidate();
+            $request->session()->regenerateToken();
+        }
 
-        return response()->json([
-            'status' => true,
-            'message' => 'Logout successful'
-        ]);
+        return redirect()->route('login')->with('success','');
     }
 }
