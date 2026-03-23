@@ -192,9 +192,7 @@
                 </div>
 
                 <div class="card-actions">
-                    <button class="btn-outline-card">
-                        <i class="bi bi-eye"></i> View
-                    </button>
+                    @if($item['application'])<a href="{{ route('tasks.board', $item['application']->id) }}" class="btn-outline-card" style="text-decoration:none;"><i class="bi bi-eye"></i> Tasks</a>@else<button class="btn-outline-card" disabled><i class="bi bi-eye"></i> No Tasks</button>@endif
                     <button class="btn-outline-card">
                         <i class="bi bi-chat-left-text"></i> Note
                     </button>

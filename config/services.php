@@ -35,4 +35,13 @@ return [
         ],
     ],
 
+    'trello' => [
+        'key'    => env('TRELLO_API_KEY'),
+        'token'  => env('TRELLO_TOKEN'),
+        'secret' => env('TRELLO_SECRET'),
+        'todo_list_id' => env('TRELLO_TODO_LIST_ID'),
+        'progress_list_id' => env('TRELLO_PROGRESS_LIST_ID'),
+        'done_list_id' => env('TRELLO_DONE_LIST_ID'),
+    ],
 ];
+

@@ -22,6 +22,11 @@
             <span>Companies</span>
         </a>
 
+        <a href="{{ route('tasks.admin.workspace') }}" class="{{ request()->routeIs('tasks.admin.*') ? 'active' : '' }}">
+            <i class="fa-solid fa-list-check"></i>
+            <span>Global Tasks</span>
+        </a>
+
         <a href="#">
             <i class="fa-regular fa-file-lines"></i>
             <span>Reports</span>

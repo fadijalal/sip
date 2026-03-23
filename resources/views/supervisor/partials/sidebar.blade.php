@@ -9,31 +9,27 @@
         </div>
     </div>
 
-    <a href="{{ route('supervisor.dashboard') }}"
-        class="nav-link-custom {{ request()->routeIs('supervisor.dashboard') ? 'active' : '' }}">
+    <a href="{{ route('supervisor.dashboard') }}" class="nav-link-custom {{ request()->routeIs('supervisor.dashboard') ? 'active' : '' }}">
         <i class="bi bi-grid-fill"></i>
         <span>Dashboard</span>
     </a>
 
-    <a href="{{ route('supervisor.applications.index') }}"
-        class="nav-link-custom {{ request()->routeIs('supervisor.applications.*') ? 'active' : '' }}">
-        <i class="bi bi-file-earmark-text"></i> Applications
+    <a href="{{ route('supervisor.applications.index') }}" class="nav-link-custom {{ request()->routeIs('supervisor.applications.*') ? 'active' : '' }}">
+        <i class="bi bi-file-earmark-text"></i>
+        <span>Applications</span>
     </a>
-    
-    <a href="{{ route('supervisor.students.index') }}"
-        class="nav-link-custom {{ request()->routeIs('supervisor.students.index') ? 'active' : '' }}">
+
+    <a href="{{ route('supervisor.students.index') }}" class="nav-link-custom {{ request()->routeIs('supervisor.students.index') ? 'active' : '' }}">
         <i class="bi bi-people"></i>
         <span>Students</span>
     </a>
 
-    <a href="{{ route('supervisor.students.pending') }}"
-        class="nav-link-custom {{ request()->routeIs('supervisor.students.pending') ? 'active' : '' }}">
+    <a href="{{ route('supervisor.students.pending') }}" class="nav-link-custom {{ request()->routeIs('supervisor.students.pending') ? 'active' : '' }}">
         <i class="bi bi-person-check"></i>
         <span>Pending Students</span>
     </a>
 
-    <a href="{{ route('supervisor.weekly-tasks') }}"
-        class="nav-link-custom {{ request()->routeIs('supervisor.weekly-tasks') ? 'active' : '' }}">
+    <a href="{{ route('supervisor.weekly-tasks') }}" class="nav-link-custom {{ request()->routeIs('supervisor.weekly-tasks') ? 'active' : '' }}">
         <i class="bi bi-journal-check"></i>
         <span>Weekly Tasks</span>
     </a>

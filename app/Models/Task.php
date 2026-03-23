@@ -11,6 +11,7 @@ class Task extends Model
     protected $fillable = [
         'application_id',
         'created_by',
+        'trello_card_id',
         'title',
         'details',
         'student_solution',
@@ -47,3 +48,4 @@ class Task extends Model
         return $this->hasMany(Attachment::class);
     }
 }
+

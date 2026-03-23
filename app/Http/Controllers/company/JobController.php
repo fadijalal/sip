@@ -42,7 +42,7 @@ class JobController extends Controller
             'status' => $validated['status'] ?? 'open',
         ]);
 
-        return redirect()->route('company.programs.index')->with('success', 'Êã ÅäÔÇÁ ÇáÝÑÕÉ ÈäÌÇÍ.');
+        return redirect()->route('company.programs.index')->with('success', 'ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½.');
     }
 
     public function updateJob(Request $request, int $id): RedirectResponse
@@ -68,7 +68,7 @@ class JobController extends Controller
 
         $job->update($validated);
 
-        return redirect()->route('company.programs.index')->with('success', 'Êã ÊÚÏíá ÇáÝÑÕÉ ÈäÌÇÍ.');
+        return redirect()->route('company.programs.index')->with('success', 'Job updated successfully.');
     }
 
     public function deleteJob(Request $request, int $id): RedirectResponse
@@ -80,6 +80,6 @@ class JobController extends Controller
 
         $job->delete();
 
-        return redirect()->route('company.programs.index')->with('success', 'Êã ÍÐÝ ÇáÝÑÕÉ ÈäÌÇÍ.');
+        return redirect()->route('company.programs.index')->with('success', 'Job deleted successfully.');
     }
 }

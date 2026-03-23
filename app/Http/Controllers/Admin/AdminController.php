@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -15,28 +16,14 @@ class AdminController extends Controller
         abort_unless(Auth::check() && Auth::user()->role === 'admin', 403);
     }
 
-
-
-    public function adminUsersPage()
+    private function actionResponse(Request $request, string $message): JsonResponse|RedirectResponse
     {
-        $this->ensureAdmin();
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json(['status' => true, 'message' => $message]);
+        }
 
-        $supervisors = User::where('role', 'supervisor')->latest()->get();
-
-        $totalSupervisors = User::where('role', 'supervisor')->count();
-        $approvedSupervisors = User::where('role', 'supervisor')->where('status', 'active')->count();
-        $pendingSupervisors = User::where('role', 'supervisor')->where('status', 'pending')->count();
-        $rejectedSupervisors = User::where('role', 'supervisor')->where('status', 'rejected')->count();
-
-        return view('admin.users', compact(
-            'supervisors',
-            'totalSupervisors',
-            'approvedSupervisors',
-            'pendingSupervisors',
-            'rejectedSupervisors'
-        ));
+        return back()->with('success', $message);
     }
-
 
     public function adminDashboard()
     {
@@ -53,37 +40,36 @@ class AdminController extends Controller
             ->take(5)
             ->get();
 
-        return view('admin.dashboard', compact(
-            'totalUsers',
-            'totalCompanies',
-            'totalAll',
-            'currentDate',
-            'recentActivities'
-        ));
+        return view('admin.dashboard', compact('totalUsers', 'totalCompanies', 'totalAll', 'currentDate', 'recentActivities'));
     }
-    //
 
-    
+    public function adminUsersPage()
+    {
+        $this->ensureAdmin();
+
+        $supervisors = User::where('role', 'supervisor')->latest()->get();
+
+        $totalSupervisors = User::where('role', 'supervisor')->count();
+        $approvedSupervisors = User::where('role', 'supervisor')->where('status', 'active')->count();
+        $pendingSupervisors = User::where('role', 'supervisor')->where('status', 'pending')->count();
+        $rejectedSupervisors = User::where('role', 'supervisor')->where('status', 'rejected')->count();
+
+        return view('admin.users', compact('supervisors', 'totalSupervisors', 'approvedSupervisors', 'pendingSupervisors', 'rejectedSupervisors'));
+    }
 
     public function adminCompaniesPage()
     {
         $this->ensureAdmin();
 
         $companies = User::where('role', 'company')->latest()->get();
-
         $totalCompanies = User::where('role', 'company')->count();
         $approvedCompanies = User::where('role', 'company')->where('status', 'active')->count();
         $pendingCompanies = User::where('role', 'company')->where('status', 'pending')->count();
 
-        return view('admin.companies', compact(
-            'companies',
-            'totalCompanies',
-            'approvedCompanies',
-            'pendingCompanies'
-        ));
+        return view('admin.companies', compact('companies', 'totalCompanies', 'approvedCompanies', 'pendingCompanies'));
     }
 
-    public function updateSupervisorStatus(Request $request, int $id): RedirectResponse
+    public function updateSupervisorStatus(Request $request, int $id): JsonResponse|RedirectResponse
     {
         $this->ensureAdmin();
 
@@ -95,17 +81,16 @@ class AdminController extends Controller
 
         if ($validated['action'] === 'delete') {
             $supervisor->delete();
-
-            return back()->with('success', 'Supervisor deleted successfully.');
+            return $this->actionResponse($request, 'Êã ÍĞİ ÍÓÇÈ ÇáãÔÑİ.');
         }
 
         $supervisor->status = $validated['action'] === 'active' ? 'active' : 'rejected';
         $supervisor->save();
 
-        return back()->with('success', 'Supervisor status updated successfully.');
+        return $this->actionResponse($request, 'Êã ÊÍÏíË ÍÇáÉ ÇáãÔÑİ ÈäÌÇÍ.');
     }
 
-    public function updateCompanyStatus(Request $request, int $id): RedirectResponse
+    public function updateCompanyStatus(Request $request, int $id): JsonResponse|RedirectResponse
     {
         $this->ensureAdmin();
 
@@ -117,13 +102,12 @@ class AdminController extends Controller
 
         if ($validated['action'] === 'delete') {
             $company->delete();
-
-            return back()->with('success', 'Company deleted successfully.');
+            return $this->actionResponse($request, 'Êã ÍĞİ ÍÓÇÈ ÇáÔÑßÉ.');
         }
 
         $company->status = $validated['action'] === 'active' ? 'active' : 'rejected';
         $company->save();
 
-        return back()->with('success', 'Company status updated successfully.');
+        return $this->actionResponse($request, 'Êã ÊÍÏíË ÍÇáÉ ÇáÔÑßÉ ÈäÌÇÍ.');
     }
 }

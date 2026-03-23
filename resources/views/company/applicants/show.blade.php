@@ -13,8 +13,7 @@
     <div class="bg-white rounded-4 p-4 p-md-5 mb-4 border shadow-sm">
         <div class="row align-items-start">
             <div class="col-auto mb-3 mb-md-0">
-                <div class="bg-primary text-white d-flex align-items-center justify-content-center rounded-4"
-                    style="width:110px;height:110px;font-size:2rem;font-weight:700;">
+                <div class="bg-primary text-white d-flex align-items-center justify-content-center rounded-4" style="width:110px;height:110px;font-size:2rem;font-weight:700;">
                     {{ strtoupper(substr($application->student->name ?? 'ST', 0, 2)) }}
                 </div>
             </div>
@@ -42,6 +41,12 @@
                         @endif
                     </div>
                 </div>
+
+                @if($application->company_status === 'approved' && $application->supervisor_status === 'approved' && $application->final_status === 'approved')
+                <div class="mb-3">
+                    <a href="{{ route('tasks.board', $application->id) }}" class="btn btn-primary rounded-pill px-3">Open Student Tasks Board</a>
+                </div>
+                @endif
 
                 <div class="row g-3">
                     <div class="col-md-4"><i class="bi bi-envelope me-2 text-primary"></i>{{ $application->student->email ?? '-' }}</div>

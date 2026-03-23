@@ -38,6 +38,12 @@
                 <div class="text-muted small">Supervisor Code</div>
                 <div class="fw-semibold">{{ $application->student->supervisor_code ?? '-' }}</div>
             </div>
+
+            @if($application->company_status === 'approved' && $application->supervisor_status === 'approved' && $application->final_status === 'approved')
+            <div class="mt-3">
+                <a href="{{ route('tasks.board', $application->id) }}" class="btn btn-primary rounded-pill">Open Student Tasks Board</a>
+            </div>
+            @endif
         </div>
     </div>
 

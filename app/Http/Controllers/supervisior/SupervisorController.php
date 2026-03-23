@@ -7,6 +7,7 @@ use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 use App\Models\Application;
+use App\Models\Task;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
@@ -167,7 +168,32 @@ class SupervisorController extends Controller
     {
         $this->ensureRole();
 
-        return view('supervisor.weekly-tasks');
+        $supervisor = Auth::user();
+
+        $approvedApplications = Application::with(['student', 'opportunity'])
+            ->where('company_status', 'approved')
+            ->where('supervisor_status', 'approved')
+            ->where('final_status', 'approved')
+            ->whereHas('student', function ($query) use ($supervisor) {
+                $query->where('supervisor_code', $supervisor->supervisor_code);
+            })
+            ->latest()
+            ->get();
+
+        $applicationIds = $approvedApplications->pluck('id');
+
+        $totalTasks = Task::whereIn('application_id', $applicationIds)->count();
+        $todoCount = Task::whereIn('application_id', $applicationIds)->where('status', 'todo')->count();
+        $progressCount = Task::whereIn('application_id', $applicationIds)->where('status', 'progress')->count();
+        $doneCount = Task::whereIn('application_id', $applicationIds)->where('status', 'done')->count();
+
+        return view('supervisor.weekly-tasks', compact(
+            'approvedApplications',
+            'totalTasks',
+            'todoCount',
+            'progressCount',
+            'doneCount'
+        ));
     }
 
     private function calculateProgress($application)

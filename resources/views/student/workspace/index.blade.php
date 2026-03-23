@@ -16,7 +16,7 @@
 
 @if($activeApplication)
 <div class="bg-white rounded-4 border shadow-sm p-4 mb-4">
-    <div class="row g-3">
+    <div class="row g-3 align-items-end">
         <div class="col-md-6">
             <div class="small text-muted">Approved Opportunity</div>
             <div class="fw-bold fs-5">{{ $activeApplication->opportunity->title ?? '-' }}</div>
@@ -31,17 +31,17 @@
             <div class="small text-muted">Supervisor Status</div>
             <div class="fw-semibold text-success">{{ ucfirst($activeApplication->supervisor_status) }}</div>
         </div>
-    </div>
-</div>
 
-<div class="bg-white rounded-4 border shadow-sm p-3">
-    @livewire('kanban-board', ['applicationId' => $activeApplication->id])
+        <div class="col-12 mt-2">
+            <a href="{{ route('tasks.board', $activeApplication->id) }}" class="btn btn-primary rounded-pill">Open Tasks Board</a>
+        </div>
+    </div>
 </div>
 @else
 <div class="bg-white rounded-4 border shadow-sm p-5 text-center">
-    <h5 class="fw-bold mb-2">Kanban Board</h5>
+    <h5 class="fw-bold mb-2">Tasks Board</h5>
     <p class="text-muted mb-0">
-        Kanban board will appear here after final approval from both company and supervisor.
+        The board appears after final approval from both company and supervisor.
     </p>
 </div>
 @endif
