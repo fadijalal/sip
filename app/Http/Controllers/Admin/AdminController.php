@@ -81,13 +81,13 @@ class AdminController extends Controller
 
         if ($validated['action'] === 'delete') {
             $supervisor->delete();
-            return $this->actionResponse($request, 'Êã ÍÐÝ ÍÓÇÈ ÇáãÔÑÝ.');
+            return $this->actionResponse($request, 'deleted successfully.');
         }
 
         $supervisor->status = $validated['action'] === 'active' ? 'active' : 'rejected';
         $supervisor->save();
 
-        return $this->actionResponse($request, 'Êã ÊÍÏíË ÍÇáÉ ÇáãÔÑÝ ÈäÌÇÍ.');
+        return $this->actionResponse($request, 'supervisor status updated successfully.');
     }
 
     public function updateCompanyStatus(Request $request, int $id): JsonResponse|RedirectResponse
@@ -102,12 +102,12 @@ class AdminController extends Controller
 
         if ($validated['action'] === 'delete') {
             $company->delete();
-            return $this->actionResponse($request, 'Êã ÍÐÝ ÍÓÇÈ ÇáÔÑßÉ.');
+            return $this->actionResponse($request, 'ï¿½ï¿½ ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½.');
         }
 
         $company->status = $validated['action'] === 'active' ? 'active' : 'rejected';
         $company->save();
 
-        return $this->actionResponse($request, 'Êã ÊÍÏíË ÍÇáÉ ÇáÔÑßÉ ÈäÌÇÍ.');
+        return $this->actionResponse($request, 'ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½ï¿½ ï¿½ï¿½ï¿½ï¿½ï¿½.');
     }
 }
