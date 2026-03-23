@@ -42,7 +42,7 @@ class JobController extends Controller
             'status' => $validated['status'] ?? 'open',
         ]);
 
-        return redirect()->route('company.programs.index')->with('success', '�� ����� ������ �����.');
+        return redirect()->route('company.programs.index')->with('success', 'Job created successfully.');
     }
 
     public function updateJob(Request $request, int $id): RedirectResponse

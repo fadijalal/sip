@@ -102,12 +102,12 @@ class AdminController extends Controller
 
         if ($validated['action'] === 'delete') {
             $company->delete();
-            return $this->actionResponse($request, '�� ��� ���� ������.');
+            return $this->actionResponse($request, 'company deleted successfully.');
         }
 
         $company->status = $validated['action'] === 'active' ? 'active' : 'rejected';
         $company->save();
 
-        return $this->actionResponse($request, '�� ����� ���� ������ �����.');
+        return $this->actionResponse($request, 'company status updated successfully.');
     }
 }
