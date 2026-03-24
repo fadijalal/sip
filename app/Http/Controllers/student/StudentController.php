@@ -69,9 +69,8 @@ class StudentController extends Controller
 
     public function applications()
     {
-        abort_unless(auth()->check() && auth()->user()->role === 'student', 403);
-
-        $student = auth()->user();
+        abort_unless(Auth::check() && Auth::user()->role === 'student', 403);
+        $student = Auth::user();
 
         $applications = \App\Models\Application::with([
             'opportunity.companyUser'
@@ -93,9 +92,8 @@ class StudentController extends Controller
 
     public function workspace()
     {
-        abort_unless(auth()->check() && auth()->user()->role === 'student', 403);
-
-        $student = auth()->user();
+        abort_unless(Auth::check() && Auth::user()->role === 'student', 403);
+        $student = Auth::user();
 
         $activeApplication = \App\Models\Application::with([
             'student',
@@ -106,9 +104,19 @@ class StudentController extends Controller
             ->latest()
             ->first();
 
+        $trainingEndDate = null;
+        $trainingEnded = false;
+
+        if ($activeApplication && $activeApplication->approved_at && $activeApplication->opportunity?->duration) {
+            $trainingEndDate = $activeApplication->approved_at->copy()->addMonths((int) $activeApplication->opportunity->duration)->startOfDay();
+            $trainingEnded = now()->startOfDay()->greaterThanOrEqualTo($trainingEndDate);
+        }
+
         return view('student.workspace.index', compact(
             'student',
-            'activeApplication'
+            'activeApplication',
+            'trainingEndDate',
+            'trainingEnded'
         ));
     }
 }

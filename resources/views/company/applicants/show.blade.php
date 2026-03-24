@@ -1,4 +1,4 @@
-@extends('company.layouts.app')
+﻿@extends('company.layouts.app')
 
 @section('title', 'Applicant Details')
 
@@ -9,6 +9,29 @@
             <i class="bi bi-arrow-left me-2"></i> Back to Applicants
         </a>
     </div>
+
+    @php
+    $isFinalApproved = $application->company_status === 'approved' && $application->supervisor_status === 'approved' && $application->final_status === 'approved';
+    $trainingEndAt = null;
+    if ($application->approved_at && $application->opportunity?->duration) {
+        $trainingEndAt = $application->approved_at->copy()->addMonths((int) $application->opportunity->duration)->startOfDay();
+    }
+    $canComplete = $isFinalApproved && ! $application->training_completed_at && $trainingEndAt && now()->startOfDay()->greaterThanOrEqualTo($trainingEndAt);
+    @endphp
+
+    @if(session('success'))
+    <div class="alert alert-success">{{ session('success') }}</div>
+    @endif
+
+    @if($errors->any())
+    <div class="alert alert-danger">
+        <ul class="mb-0">
+            @foreach($errors->all() as $error)
+            <li>{{ $error }}</li>
+            @endforeach
+        </ul>
+    </div>
+    @endif
 
     <div class="bg-white rounded-4 p-4 p-md-5 mb-4 border shadow-sm">
         <div class="row align-items-start">
@@ -25,6 +48,9 @@
                         <span class="badge rounded-pill {{ $application->company_status === 'approved' ? 'bg-success-subtle text-success' : ($application->company_status === 'rejected' ? 'bg-danger-subtle text-danger' : 'bg-warning-subtle text-warning') }}">
                             {{ ucfirst($application->company_status) }}
                         </span>
+                        @if($application->training_completed_at)
+                        <span class="badge rounded-pill bg-primary-subtle text-primary ms-1">Training Completed</span>
+                        @endif
                     </div>
 
                     <div class="mt-3 mt-md-0 d-flex gap-2">
@@ -42,10 +68,17 @@
                     </div>
                 </div>
 
-                @if($application->company_status === 'approved' && $application->supervisor_status === 'approved' && $application->final_status === 'approved')
-                <div class="mb-3">
+                @if($isFinalApproved)
+                <div class="mb-3 d-flex gap-2 flex-wrap">
                     <a href="{{ route('tasks.board', $application->id) }}" class="btn btn-primary rounded-pill px-3">Open Student Tasks Board</a>
+                    @if($application->training_completed_at)
+                    <a href="{{ route('training.complete', $application->id) }}" class="btn btn-outline-primary rounded-pill px-3">Completion Screen</a>
+                    @endif
                 </div>
+                @endif
+
+                @if($trainingEndAt)
+                <p class="small text-muted mb-2">Training period ends on: {{ $trainingEndAt->format('Y-m-d') }}</p>
                 @endif
 
                 <div class="row g-3">
@@ -58,6 +91,34 @@
             </div>
         </div>
     </div>
+
+    @if($canComplete || $application->company_final_score !== null)
+    <div class="bg-white rounded-4 p-4 p-md-5 mb-4 border shadow-sm">
+        <h2 class="h5 fw-bold mb-3">Company Final Evaluation</h2>
+
+        @if(! $application->training_completed_at)
+        <form method="POST" action="{{ route('company.applications.complete-training', $application->id) }}" class="row g-3">
+            @csrf
+            <div class="col-md-3">
+                <label class="form-label">Final Score /100</label>
+                <input type="number" name="company_final_score" min="0" max="100" required class="form-control" value="{{ old('company_final_score', $application->company_final_score) }}">
+            </div>
+            <div class="col-md-9">
+                <label class="form-label">Final Written Evaluation</label>
+                <textarea name="company_final_note" rows="3" class="form-control" required>{{ old('company_final_note', $application->company_final_note) }}</textarea>
+            </div>
+            <div class="col-12">
+                <button class="btn btn-primary rounded-pill px-4" type="submit">End Training & Save Evaluation</button>
+            </div>
+        </form>
+        @else
+        <div class="alert alert-light border mb-0">
+            <div><strong>Your score:</strong> {{ $application->company_final_score ?? '-' }}/100</div>
+            <div class="mt-1"><strong>Your note:</strong> {{ $application->company_final_note ?? '-' }}</div>
+        </div>
+        @endif
+    </div>
+    @endif
 
     <div class="bg-white rounded-4 p-4 p-md-5 border shadow-sm">
         <h2 class="h5 fw-bold mb-4">Application Details</h2>

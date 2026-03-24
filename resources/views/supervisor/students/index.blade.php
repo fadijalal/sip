@@ -142,6 +142,7 @@
         $progress = $item['progress'];
         $statusLabel = $item['status_label'];
         $isOnTrack = $statusLabel === 'On Track';
+        $isCompleted = $statusLabel === 'Completed';
         $initials = strtoupper(substr($student->name ?? 'ST', 0, 1)) . strtoupper(substr(explode(' ', trim($student->name ?? ''))[1] ?? '', 0, 1));
         @endphp
 
@@ -156,7 +157,7 @@
                         </div>
                     </div>
 
-                    <span class="status-badge {{ $isOnTrack ? 'status-on-track' : 'status-at-risk' }}">
+                    <span class="status-badge {{ $isCompleted ? 'status-on-track' : ($isOnTrack ? 'status-on-track' : 'status-at-risk') }}">
                         <i class="bi bi-dot"></i> {{ $statusLabel }}
                     </span>
                 </div>
@@ -186,7 +187,7 @@
 
                     <div class="progress">
                         <div class="progress-bar"
-                            style="width: {{ $progress }}%; background-color: {{ $isOnTrack ? '#22c55e' : '#f59e0b' }};">
+                            style="width: {{ $progress }}%; background-color: {{ $isCompleted || $isOnTrack ? '#22c55e' : '#f59e0b' }};">
                         </div>
                     </div>
                 </div>

@@ -19,7 +19,9 @@ class Application extends Model
         'final_status',
         'approved_at',
         'company_final_score',
+        'company_final_note',
         'supervisor_final_score',
+        'supervisor_final_note',
         'final_score',
         'training_completed_at',
     ];

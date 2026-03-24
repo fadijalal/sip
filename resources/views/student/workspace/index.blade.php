@@ -1,4 +1,4 @@
-@extends('student.layouts.app')
+﻿@extends('student.layouts.app')
 
 @section('title', 'Training Workspace')
 
@@ -32,9 +32,26 @@
             <div class="fw-semibold text-success">{{ ucfirst($activeApplication->supervisor_status) }}</div>
         </div>
 
+        @if($trainingEndDate)
+        <div class="col-12">
+            <div class="small text-muted">Training End Date: {{ $trainingEndDate->format('Y-m-d') }}</div>
+        </div>
+        @endif
+
+        @if($activeApplication->training_completed_at)
+        <div class="col-12 mt-2">
+            <div class="alert alert-success mb-2">Training completed successfully.</div>
+            <a href="{{ route('training.complete', $activeApplication->id) }}" class="btn btn-success rounded-pill">Open Congratulations Screen</a>
+        </div>
+        @elseif($trainingEnded)
+        <div class="col-12 mt-2">
+            <div class="alert alert-warning mb-2">Training period ended. Waiting for final evaluation from company and supervisor.</div>
+        </div>
+        @else
         <div class="col-12 mt-2">
             <a href="{{ route('tasks.board', $activeApplication->id) }}" class="btn btn-primary rounded-pill">Open Tasks Board</a>
         </div>
+        @endif
     </div>
 </div>
 @else

@@ -112,6 +112,7 @@ class SupervisorController extends Controller
         $approvedStudents = $activeStudentsRaw->map(function ($student) {
             $application = Application::with('opportunity')
                 ->where('student_id', $student->id)
+                ->where('final_status', 'approved')
                 ->latest()
                 ->first();
 
@@ -120,7 +121,11 @@ class SupervisorController extends Controller
 
             if ($application) {
                 $progress = $this->calculateProgress($application);
-                $statusLabel = $progress >= 75 ? 'On Track' : 'At Risk';
+                if ($application->training_completed_at) {
+                    $statusLabel = 'Completed';
+                } else {
+                    $statusLabel = $progress >= 75 ? 'On Track' : 'At Risk';
+                }
             }
 
             return [
@@ -174,6 +179,7 @@ class SupervisorController extends Controller
             ->where('company_status', 'approved')
             ->where('supervisor_status', 'approved')
             ->where('final_status', 'approved')
+            ->whereNull('training_completed_at')
             ->whereHas('student', function ($query) use ($supervisor) {
                 $query->where('supervisor_code', $supervisor->supervisor_code);
             })
@@ -200,6 +206,10 @@ class SupervisorController extends Controller
     {
         if (!$application->approved_at || !$application->opportunity || !$application->opportunity->duration) {
             return 0;
+        }
+
+        if ($application->training_completed_at) {
+            return 100;
         }
 
         $start = Carbon::parse($application->approved_at);

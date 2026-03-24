@@ -76,9 +76,15 @@ class TrainingTaskController extends Controller
             ->where('company_status', 'approved')
             ->where('supervisor_status', 'approved')
             ->where('final_status', 'approved')
+            ->whereNull('training_completed_at')
             ->get();
 
         foreach ($applications as $application) {
+            $application->loadMissing('opportunity');
+            if ($this->isTrainingEnded($application)) {
+                continue;
+            }
+
             $task = Task::create([
                 'application_id' => $application->id,
                 'created_by' => $request->user()->id,
@@ -120,6 +126,7 @@ class TrainingTaskController extends Controller
             ->where('company_status', 'approved')
             ->where('supervisor_status', 'approved')
             ->where('final_status', 'approved')
+            ->whereNull('training_completed_at')
             ->whereHas('student', function (Builder $query) use ($request) {
                 $query->where('supervisor_code', $request->user()->supervisor_code);
             })
@@ -130,6 +137,11 @@ class TrainingTaskController extends Controller
         }
 
         foreach ($applications as $application) {
+            $application->loadMissing('opportunity');
+            if ($this->isTrainingEnded($application)) {
+                continue;
+            }
+
             $task = Task::create([
                 'application_id' => $application->id,
                 'created_by' => $request->user()->id,
@@ -186,10 +198,45 @@ class TrainingTaskController extends Controller
         };
     }
 
+    private function ensureTrainingOpen(Application $application): void
+    {
+        abort_if($this->isTrainingEnded($application), 422, 'Training period ended. Tasks are read-only now.');
+    }
+
+    private function getTrainingEndDate(Application $application): ?\Illuminate\Support\Carbon
+    {
+        if (! $application->approved_at || ! $application->opportunity || (int) $application->opportunity->duration <= 0) {
+            return null;
+        }
+
+        return $application->approved_at->copy()->addMonths((int) $application->opportunity->duration)->startOfDay();
+    }
+
+    private function isTrainingEnded(Application $application): bool
+    {
+        if ($application->training_completed_at) {
+            return true;
+        }
+
+        $endDate = $this->getTrainingEndDate($application);
+        if (! $endDate) {
+            return false;
+        }
+
+        return now()->startOfDay()->greaterThanOrEqualTo($endDate);
+    }
+
     public function board(Request $request, Application $application)
     {
         $application->load(['student', 'opportunity.companyUser']);
         $this->authorizeApplication($request, $application);
+
+        $trainingEnded = $this->isTrainingEnded($application);
+        $trainingEndDate = $this->getTrainingEndDate($application);
+
+        if ($application->training_completed_at && $request->user()->role === 'student') {
+            return redirect()->route('training.complete', $application->id);
+        }
 
         $tasks = Task::with([
             'creator:id,name,role',
@@ -203,6 +250,8 @@ class TrainingTaskController extends Controller
         return view('tasks.board', [
             'application' => $application,
             'role' => $request->user()->role,
+            'trainingEnded' => $trainingEnded,
+            'trainingEndDate' => $trainingEndDate,
             'todoTasks' => $tasks->where('status', 'todo')->values(),
             'progressTasks' => $tasks->where('status', 'progress')->values(),
             'doneTasks' => $tasks->where('status', 'done')->values(),
@@ -212,6 +261,7 @@ class TrainingTaskController extends Controller
     public function createTask(Request $request, Application $application): RedirectResponse
     {
         $this->authorizeApplication($request, $application);
+        $this->ensureTrainingOpen($application);
         abort_unless(in_array($request->user()->role, ['company', 'supervisor', 'admin'], true), 403);
 
         $validated = $request->validate([
@@ -249,6 +299,7 @@ class TrainingTaskController extends Controller
     public function submitSolution(Request $request, Application $application, Task $task): RedirectResponse
     {
         $this->authorizeApplication($request, $application);
+        $this->ensureTrainingOpen($application);
         abort_unless($request->user()->role === 'student', 403);
         abort_unless((int) $application->id === (int) $task->application_id, 404);
 
@@ -292,6 +343,7 @@ class TrainingTaskController extends Controller
     public function addComment(Request $request, Application $application, Task $task): RedirectResponse
     {
         $this->authorizeApplication($request, $application);
+        $this->ensureTrainingOpen($application);
         abort_unless((int) $application->id === (int) $task->application_id, 404);
 
         $validated = $request->validate([
@@ -309,6 +361,7 @@ class TrainingTaskController extends Controller
     public function gradeTask(Request $request, Application $application, Task $task): RedirectResponse
     {
         $this->authorizeApplication($request, $application);
+        $this->ensureTrainingOpen($application);
         abort_unless(in_array($request->user()->role, ['company', 'supervisor', 'admin'], true), 403);
         abort_unless((int) $application->id === (int) $task->application_id, 404);
 

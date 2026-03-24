@@ -45,6 +45,7 @@ Route::middleware('auth')->group(function () {
             ($user->role === 'supervisor' && optional($application->student)->supervisor_code === $user->supervisor_code),
             403
         );
+        abort_unless($application->training_completed_at, 404);
 
         return view('training-complete', ['application' => $application]);
     })->name('training.complete');
@@ -71,6 +72,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/company/applicants/{id}', [ApplicationsCompanyController::class, 'applicantDetails'])->name('company.applicants.show');
     Route::post('/company/applications/{id}/approve', [ApplicationController::class, 'companyApplicationApprove'])->name('company.applications.approve');
     Route::post('/company/applications/{id}/reject', [ApplicationController::class, 'companyApplicationReject'])->name('company.applications.reject');
+    Route::post('/company/applications/{id}/complete-training', [ApplicationController::class, 'companyCompleteTraining'])->name('company.applications.complete-training');
 
     Route::get('/student/dashboard', [StudentController::class, 'dashboard'])->name('student.dashboard');
     Route::get('/student/programs', [StudentController::class, 'programs'])->name('student.programs.index');
@@ -88,6 +90,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/supervisor/applications/{id}', [SupervisorApplicationsController::class, 'show'])->name('supervisor.applications.show');
     Route::post('/supervisor/applications/{id}/approve', [ApplicationController::class, 'supervisorApplicationApprove'])->name('supervisor.applications.approve');
     Route::post('/supervisor/applications/{id}/reject', [ApplicationController::class, 'supervisorReject'])->name('supervisor.applications.reject');
+    Route::post('/supervisor/applications/{id}/complete-training', [ApplicationController::class, 'supervisorCompleteTraining'])->name('supervisor.applications.complete-training');
     Route::get('/supervisor/weekly-tasks', [SupervisorController::class, 'weeklyTasksPage'])->name('supervisor.weekly-tasks');
 
     // Training Tasks Workflow (Role-based + Trello sync)
