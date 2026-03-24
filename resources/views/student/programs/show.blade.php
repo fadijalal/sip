@@ -77,7 +77,7 @@
                 <strong>{{ ucfirst($existingApplication->final_status) }}</strong>
             </div>
             @else
-            <form method="POST" action="{{ route('student.applications.store') }}" enctype="multipart/form-data">
+            <form method="POST" action="{{ route('student.applications.apply') }}" enctype="multipart/form-data">
                 @csrf
 
                 <input type="hidden" name="opportunity_id" value="{{ $program->id }}">
