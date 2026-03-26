@@ -1,59 +1,166 @@
-<p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
+# 🎓 TrainEd - منصة التدريب المتكاملة
 
-<p align="center">
-<a href="https://github.com/laravel/framework/actions"><img src="https://github.com/laravel/framework/workflows/tests/badge.svg" alt="Build Status"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/dt/laravel/framework" alt="Total Downloads"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/v/laravel/framework" alt="Latest Stable Version"></a>
-<a href="https://packagist.org/packages/laravel/framework"><img src="https://img.shields.io/packagist/l/laravel/framework" alt="License"></a>
-</p>
+![TrainEd Logo](https://i.imgur.com/7kqUEqN.png)
 
-## About Laravel
+<div dir="rtl">
 
-Laravel is a web application framework with expressive, elegant syntax. We believe development must be an enjoyable and creative experience to be truly fulfilling. Laravel takes the pain out of development by easing common tasks used in many web projects, such as:
+## 📋 **نظرة عامة**
 
-- [Simple, fast routing engine](https://laravel.com/docs/routing).
-- [Powerful dependency injection container](https://laravel.com/docs/container).
-- Multiple back-ends for [session](https://laravel.com/docs/session) and [cache](https://laravel.com/docs/cache) storage.
-- Expressive, intuitive [database ORM](https://laravel.com/docs/eloquent).
-- Database agnostic [schema migrations](https://laravel.com/docs/migrations).
-- [Robust background job processing](https://laravel.com/docs/queues).
-- [Real-time event broadcasting](https://laravel.com/docs/broadcasting).
+منصة تدريب متكاملة تدعم أربعة أنواع من المستخدمين (طالب، مشرف، شركة، مدير) مع نظام ترجمة متكامل (عربي/إنجليزي) وثيم داكن/فاتح. تم بناء المنصة باستخدام أحدث التقنيات لتوفير تجربة مستخدم سلسة وفعالة.
 
-Laravel is accessible, powerful, and provides tools required for large, robust applications.
+### ✨ **المميزات الرئيسية**
 
-## Learning Laravel
+- 🔐 نظام مصادقة متكامل مع 4 أنواع مستخدمين
+- 🌐 دعم كامل للغتين (عربي/إنجليزي) مع RTL/LTR
+- 🌓 ثيم داكن/فاتح قابل للتبديل
+- 📱 تصميم متجاوب مع جميع الشاشات
+- 📊 تقارير وإحصائيات متقدمة
+- ✅ إدارة المهام والمتقدمين
+- 🏢 لوحات تحكم مخصصة لكل نوع مستخدم
 
-Laravel has the most extensive and thorough [documentation](https://laravel.com/docs) and video tutorial library of all modern web application frameworks, making it a breeze to get started with the framework. You can also check out [Laravel Learn](https://laravel.com/learn), where you will be guided through building a modern Laravel application.
+</div>
 
-If you don't feel like reading, [Laracasts](https://laracasts.com) can help. Laracasts contains thousands of video tutorials on a range of topics including Laravel, modern PHP, unit testing, and JavaScript. Boost your skills by digging into our comprehensive video library.
+## 🚀 **التقنيات المستخدمة**
 
-## Laravel Sponsors
+| التقنية      | الإصدار | الاستخدام          |
+| ------------ | ------- | ------------------ |
+| Vue.js       | 3.4.0   | إطار العمل الرئيسي |
+| Vite         | 5.0.0   | أداة البناء        |
+| Vue Router   | 4.2.0   | إدارة المسارات     |
+| Pinia        | 2.1.0   | إدارة الحالة       |
+| Bootstrap    | 5.3.2   | التصميم والتنسيق   |
+| Chart.js     | 4.4.0   | الرسوم البيانية    |
+| AOS          | 2.3.4   | أنيميشن التمرير    |
+| Font Awesome | 6.5.0   | الأيقونات          |
 
-We would like to extend our thanks to the following sponsors for funding Laravel development. If you are interested in becoming a sponsor, please visit the [Laravel Partners program](https://partners.laravel.com).
+## 🛠️ **التثبيت والتشغيل**
 
-### Premium Partners
+### المتطلبات الأساسية
 
-- **[Vehikl](https://vehikl.com)**
-- **[Tighten Co.](https://tighten.co)**
-- **[Kirschbaum Development Group](https://kirschbaumdevelopment.com)**
-- **[64 Robots](https://64robots.com)**
-- **[Curotec](https://www.curotec.com/services/technologies/laravel)**
-- **[DevSquad](https://devsquad.com/hire-laravel-developers)**
-- **[Redberry](https://redberry.international/laravel-development)**
-- **[Active Logic](https://activelogic.com)**
+- Node.js (v18 أو أحدث)
+- npm أو yarn
 
-## Contributing
+### خطوات التثبيت
 
-Thank you for considering contributing to the Laravel framework! The contribution guide can be found in the [Laravel documentation](https://laravel.com/docs/contributions).
+```bash
+# 1. استنساخ المشروع
+git clone https://github.com/your-username/train-ed-vue.git
 
-## Code of Conduct
+# 2. الدخول إلى المجلد
+cd train-ed-vue
 
-In order to ensure that the Laravel community is welcoming to all, please review and abide by the [Code of Conduct](https://laravel.com/docs/contributions#code-of-conduct).
+# 3. تثبيت الاعتماديات
+npm install
 
-## Security Vulnerabilities
+# 4. تشغيل المشروع في وضع التطوير
+npm run dev
 
-If you discover a security vulnerability within Laravel, please send an e-mail to Taylor Otwell via [taylor@laravel.com](mailto:taylor@laravel.com). All security vulnerabilities will be promptly addressed.
+# 5. بناء المشروع للإنتاج
+npm run build
 
-## License
+# 6. معاينة نسخة الإنتاج محلياً
+npm run preview
+🔐 المستخدمين والأدوار
+👨‍🎓 طالب (Student)
+رابط تسجيل الدخول: /login أو /student/login
 
-The Laravel framework is open-sourced software licensed under the [MIT license](https://opensource.org/licenses/MIT).
+لوحة التحكم: /student/dashboard
+
+الصلاحيات:
+
+عرض لوحة التحكم
+
+الوصول إلى مساحة العمل (Workspace)
+
+متابعة حالة الطلب (Application Status)
+
+تصفح البرامج التدريبية
+
+تقديم المهام الأسبوعية
+
+عرض حالة الاعتماد
+
+👨‍🏫 مشرف (Supervisor)
+رابط تسجيل الدخول: /supervisor/login
+
+لوحة التحكم: /supervisor/dashboard
+
+الصلاحيات:
+
+عرض لوحة التحكم
+
+إدارة الطلاب (Students)
+
+متابعة المهام الأسبوعية للطلاب
+
+تقييم المهام
+
+عرض التقارير
+
+🏢 شركة (Company)
+رابط تسجيل الدخول: /company/login
+
+لوحة التحكم: /company/dashboard
+
+الصلاحيات:
+
+عرض لوحة التحكم
+
+إدارة البرامج التدريبية (Programs)
+
+إضافة برامج جديدة
+
+متابعة المتقدمين (Applicants)
+
+عرض التقارير
+
+تعديل الملف الشخصي للشركة
+
+👑 مدير (Admin)
+رابط تسجيل الدخول: /admin/login
+
+لوحة التحكم: /admin/dashboard
+
+الصلاحيات:
+
+عرض لوحة التحكم
+
+إدارة المستخدمين (Users)
+
+إدارة الشركات (Companies)
+
+عرض التقارير الشاملة
+
+إضافة مشرفين جدد
+🌐 الروابط المهمة
+الصفحة	الرابط
+تسجيل الدخول العام	/login
+تسجيل الدخول (مدير)	/admin/login
+تسجيل الدخول (مشرف)	/supervisor/login
+تسجيل الدخول (شركة)	/company/login
+إنشاء حساب	/register
+تسجيل شركة	/company/register
+```
+
+🎨 الثيمات
+الوضع الفاتح (Light Mode)
+ألوان فاتحة ومريحة للعين
+
+خلفيات بيضاء ونصوص داكنة
+
+مناسب للاستخدام في النهار
+
+الوضع الداكن (Dark Mode)
+ألوان داكنة لتوفير الطاقة
+
+خلفيات سوداء ونصوص فاتحة
+
+مناسب للاستخدام في الليل
+
+يتم حفظ تفضيل الثيم في localStorage لاستمراريته عبر الجلسات.
+
+🌍 الترجمة
+اللغات المدعومة
+العربية - دعم كامل مع RTL (من اليمين لليسار)
+
+الإنجليزية - دعم كامل مع LTR (من اليسار لليمين)
