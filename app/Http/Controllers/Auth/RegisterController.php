@@ -8,6 +8,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use App\Models\UserNotification;
+use Illuminate\Support\Facades\Schema;
 
 class RegisterController extends Controller
 {
@@ -79,6 +81,7 @@ class RegisterController extends Controller
         if ($user->role === 'admin' && $user->status === 'active') {
             Auth::login($user);
             $request->session()->regenerate();
+            $this->logRegisterNotification($user->id);
 
             return redirect()->route('admin.dashboard')
                 ->with('success', 'تم إنشاء حساب الأدمن وتسجيل الدخول بنجاح');
@@ -95,5 +98,23 @@ class RegisterController extends Controller
         } while (User::where('supervisor_code', $code)->exists());
 
         return $code;
+    }
+
+    private function logRegisterNotification(int $userId): void
+    {
+        try {
+            if (! Schema::hasTable('user_notifications')) {
+                return;
+            }
+
+            UserNotification::create([
+                'user_id' => $userId,
+                'title' => 'create new profile Successfully',
+                'description' => 'تم انشاء حسابك بنجاح.',
+                'type' => 'success',
+                'meta' => ['category' => 'auth'],
+            ]);
+        } catch (\Throwable) {
+        }
     }
 }

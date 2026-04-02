@@ -2,9 +2,11 @@
 
 namespace App\Http\Controllers\tasks;
 
+use App\Http\Controllers\Controller;
 use App\Models\Application;
 use App\Models\Task;
-use App\Http\Controllers\Controller;
+use App\Models\User;
+use App\Services\NotificationService;
 use App\Services\TrelloService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;
@@ -12,8 +14,10 @@ use Illuminate\Http\Request;
 
 class TrainingTaskController extends Controller
 {
-    public function __construct(private readonly TrelloService $trello)
-    {
+    public function __construct(
+        private readonly TrelloService $trello,
+        private readonly NotificationService $notifications
+    ) {
     }
 
     public function workspace(Request $request): RedirectResponse
@@ -111,9 +115,19 @@ class TrainingTaskController extends Controller
             if (! empty($card['id'])) {
                 $task->update(['trello_card_id' => $card['id']]);
             }
+
+            if ($application->student_id) {
+                $this->notifications->notifyUser(
+                    userId: (int) $application->student_id,
+                    title: 'New General Task',
+                    description: 'تمت إضافة مهمة عامة جديدة من الإدارة.',
+                    type: 'info',
+                    meta: ['category' => 'task']
+                );
+            }
         }
 
-        return back()->with('success', 'تم نشر المهمة على جميع الطلاب المقبولين نهائيًا.');
+        return back()->with('success', 'تم نشر المهمة العامة بنجاح.');
     }
 
     public function supervisorBroadcastTask(Request $request): RedirectResponse
@@ -168,9 +182,19 @@ class TrainingTaskController extends Controller
             if (! empty($card['id'])) {
                 $task->update(['trello_card_id' => $card['id']]);
             }
+
+            if ($application->student_id) {
+                $this->notifications->notifyUser(
+                    userId: (int) $application->student_id,
+                    title: 'New General Task',
+                    description: 'تمت إضافة مهمة عامة جديدة من المشرف.',
+                    type: 'info',
+                    meta: ['category' => 'task']
+                );
+            }
         }
 
-        return back()->with('success', 'تم إنشاء المهمة العامة وإرسالها لجميع الطلاب التابعين لك.');
+        return back()->with('success', 'تم نشر المهمة العامة بنجاح.');
     }
 
     private function authorizeApplication(Request $request, Application $application): void
@@ -298,6 +322,14 @@ class TrainingTaskController extends Controller
             $task->update(['trello_card_id' => $card['id']]);
         }
 
+        $this->notifications->notifyUser(
+            userId: (int) $application->student_id,
+            title: 'New Task Added',
+            description: 'تمت إضافة مهمة جديدة على لوحة التدريب.',
+            type: 'info',
+            meta: ['category' => 'task']
+        );
+
         return back()->with('success', 'تم إنشاء المهمة بنجاح.');
     }
 
@@ -342,6 +374,28 @@ class TrainingTaskController extends Controller
             }
         }
 
+        $recipients = [];
+        $companyId = (int) optional($application->opportunity)->company_user_id;
+        if ($companyId > 0) {
+            $recipients[] = $companyId;
+        }
+
+        $supervisor = $application->student?->supervisor_code
+            ? User::where('role', 'supervisor')->where('supervisor_code', $application->student->supervisor_code)->first()
+            : null;
+
+        if ($supervisor) {
+            $recipients[] = (int) $supervisor->id;
+        }
+
+        $this->notifications->notifyMany(
+            userIds: $recipients,
+            title: 'Task Solution Submitted',
+            description: 'قام الطالب بتسليم حل مهمة.',
+            type: 'success',
+            meta: ['category' => 'task']
+        );
+
         return back()->with('success', 'تم تسليم الحل بنجاح.');
     }
 
@@ -359,6 +413,16 @@ class TrainingTaskController extends Controller
             'user_id' => $request->user()->id,
             'content' => trim($validated['content']),
         ]);
+
+        if ((string) $request->user()->role !== 'student' && $application->student_id) {
+            $this->notifications->notifyUser(
+                userId: (int) $application->student_id,
+                title: 'New Comment on Task',
+                description: 'تمت إضافة تعليق جديد على إحدى مهامك.',
+                type: 'info',
+                meta: ['category' => 'task']
+            );
+        }
 
         return back()->with('success', 'تمت إضافة التعليق.');
     }
@@ -384,6 +448,16 @@ class TrainingTaskController extends Controller
         }
 
         $task->save();
+
+        if ($application->student_id) {
+            $this->notifications->notifyUser(
+                userId: (int) $application->student_id,
+                title: 'Task Evaluated',
+                description: 'تم تقييم مهمتك من قبل الجهة المسؤولة.',
+                type: 'success',
+                meta: ['category' => 'evaluation']
+            );
+        }
 
         return back()->with('success', 'تم حفظ التقييم بنجاح.');
     }

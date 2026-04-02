@@ -12,6 +12,8 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Str;
+use App\Models\UserNotification;
+use Illuminate\Support\Facades\Schema;
 
 class AdminController extends Controller
 {
@@ -133,7 +135,8 @@ class AdminController extends Controller
         }
 
         $supervisor->status = $validated['action'] === 'active' ? 'active' : 'rejected';
-        $supervisor->save();
+        $supervisor->save(); 
+        $this->adminNotification($id, "Updated Successfully", "Update Supervisor Status Successfully");
 
         return $this->actionResponse($request, 'supervisor status updated successfully.');
     }
@@ -164,6 +167,7 @@ class AdminController extends Controller
 
         $company->status = $validated['action'] === 'active' ? 'active' : 'rejected';
         $company->save();
+        $this->adminNotification($id, "Updated Successfully", "Update Company Status Successfully");
 
         return $this->actionResponse($request, 'company status updated successfully.');
     }
@@ -207,6 +211,7 @@ class AdminController extends Controller
                 ],
             ]);
         }
+        $this->adminNotification($user->id, "Add Successfully", "Add  Supervisor Successfully");
 
         return back()->with('success', 'Supervisor created successfully.');
     }
@@ -218,5 +223,23 @@ class AdminController extends Controller
         } while (User::where('supervisor_code', $code)->exists());
 
         return $code;
+    }
+
+    private function adminNotification(int $userId,string $title,string $description): void
+    {
+        try {
+            if (! Schema::hasTable('user_notifications')) {
+                return;
+            }
+
+            UserNotification::create([
+                'user_id' => $userId,
+                'title' => $title,
+                'description' => $description,
+                'type' => 'success',
+                // 'meta' => ['category' => 'auth'],
+            ]);
+        } catch (\Throwable) {
+        }
     }
 }

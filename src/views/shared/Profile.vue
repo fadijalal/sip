@@ -3,8 +3,8 @@
     <div class="settings-card mb-4" data-aos="fade-up" data-aos-delay="200">
       <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
         <div>
-          <h4 class="fw-bold mb-1">Profile</h4>
-          <p class="text-muted mb-0">Manage your account information</p>
+          <h4 class="fw-bold mb-1">{{ t('profile_settings') }}</h4>
+          <p class="text-muted mb-0">{{ t('manage_account') }}</p>
         </div>
       </div>
     </div>
@@ -22,60 +22,60 @@
       <form @submit.prevent="saveProfile">
         <div class="row g-3">
           <div class="col-md-6">
-            <label class="form-label fw-semibold">Role</label>
+            <label class="form-label fw-semibold">{{ t('role') }}</label>
             <input class="form-control" :value="user.role" disabled>
           </div>
 
           <div class="col-md-6">
-            <label class="form-label fw-semibold">Status</label>
+            <label class="form-label fw-semibold">{{ t('status') }}</label>
             <input class="form-control" :value="user.status || '-'" disabled>
           </div>
 
           <div class="col-md-6">
-            <label class="form-label fw-semibold">Name</label>
+            <label class="form-label fw-semibold">{{ t('name') }}</label>
             <input class="form-control" v-model="form.name" :disabled="!isEditable('name')">
           </div>
 
           <div class="col-md-6">
-            <label class="form-label fw-semibold">Email</label>
+            <label class="form-label fw-semibold">{{ t('email') }}</label>
             <input class="form-control" :value="user.email" disabled>
           </div>
 
           <div class="col-md-6">
-            <label class="form-label fw-semibold">Phone Number</label>
+            <label class="form-label fw-semibold">{{ t('phone_number') }}</label>
             <input class="form-control" v-model="form.phone_number" :disabled="!isEditable('phone_number')">
           </div>
 
           <div v-if="user.role === 'supervisor'" class="col-md-6">
-            <label class="form-label fw-semibold">Supervisor Code</label>
+            <label class="form-label fw-semibold">{{ t('supervisor_code') }}</label>
             <input class="form-control" :value="user.supervisor_code || '-'" disabled>
           </div>
 
           <template v-if="user.role === 'company'">
             <div class="col-md-6">
-              <label class="form-label fw-semibold">Company Name</label>
+              <label class="form-label fw-semibold">{{ t('company_name') }}</label>
               <input class="form-control" v-model="form.company_name" :disabled="!isEditable('company_name')">
             </div>
             <div class="col-md-6">
-              <label class="form-label fw-semibold">Company Website</label>
+              <label class="form-label fw-semibold">{{ t('website') }}</label>
               <input class="form-control" v-model="form.company_website" :disabled="!isEditable('company_website')">
             </div>
             <div class="col-12">
-              <label class="form-label fw-semibold">Company Address</label>
+              <label class="form-label fw-semibold">{{ t('location') }}</label>
               <input class="form-control" v-model="form.company_address" :disabled="!isEditable('company_address')">
             </div>
           </template>
 
           <div v-if="user.role === 'student'" class="col-md-6">
-            <label class="form-label fw-semibold">Student Number</label>
+            <label class="form-label fw-semibold">{{ t('student_id') }}</label>
             <input class="form-control" :value="user.student_id || user.university_id || '-'" disabled>
           </div>
         </div>
 
         <div v-if="canEditAnyField" class="d-flex justify-content-end mt-4">
           <button type="submit" class="btn-save" :disabled="isSaving">
-            <span v-if="!isSaving">Save Changes</span>
-            <span v-else>Saving...</span>
+            <span v-if="!isSaving">{{ t('save_changes') }}</span>
+            <span v-else>{{ t('saving') }}</span>
           </button>
         </div>
       </form>
@@ -87,27 +87,27 @@
       data-aos="fade-up"
       data-aos-delay="200"
     >
-      <h6 class="card-title"><i class="bi bi-lock text-muted me-2"></i>Change Password</h6>
+      <h6 class="card-title"><i class="bi bi-lock text-muted me-2"></i>{{ t('change_password') }}</h6>
       <div class="row g-3">
         <div class="col-12">
-          <label class="form-label">Current Password</label>
+          <label class="form-label">{{ t('current_password') }}</label>
           <input type="password" class="form-control editable-input" v-model="password.current" placeholder="••••••••" />
         </div>
         <div class="col-12">
-          <label class="form-label">New Password</label>
+          <label class="form-label">{{ t('new_password') }}</label>
           <input type="password" class="form-control editable-input" v-model="password.new" placeholder="••••••••" />
-          <div class="text-muted small mt-2">Use at least 8 characters.</div>
+          <div class="text-muted small mt-2">{{ t('password_requirements') }}</div>
         </div>
         <div class="col-12">
-          <label class="form-label">Confirm New Password</label>
+          <label class="form-label">{{ t('confirm_new_password') }}</label>
           <input type="password" class="form-control editable-input" v-model="password.confirm" placeholder="••••••••" />
         </div>
       </div>
       <div class="d-flex justify-content-end gap-2 mt-4">
-        <button class="btn-cancel" @click="resetPassword">Cancel</button>
+        <button class="btn-cancel" @click="resetPassword">{{ t('cancel') }}</button>
         <button class="btn-save password-save-btn" @click="updatePassword">
           <i class="bi bi-key me-2"></i>
-          Update Password
+          {{ t('update_password') }}
         </button>
       </div>
     </div>
@@ -118,9 +118,9 @@
       data-aos="fade-up"
       data-aos-delay="300"
     >
-      <h6 class="danger-title mb-2">Danger Zone</h6>
-      <p class="text-muted small mb-4">Deleting account is irreversible.</p>
-      <button class="btn-delete" @click="confirmDelete">Delete Account</button>
+      <h6 class="danger-title mb-2">{{ t('danger_zone') }}</h6>
+      <p class="text-muted small mb-4">{{ t('delete_warning') }}</p>
+      <button class="btn-delete" @click="confirmDelete">{{ t('delete_account') }}</button>
     </div>
   </div>
 </template>
@@ -131,6 +131,7 @@ import { computed, onMounted, reactive, ref } from 'vue'
 import { useAuthStore } from '@/stores/auth'
 import { useToastStore } from '@/stores/toast'
 import { useRouter } from 'vue-router'
+import { useI18n } from '@/composables/useI18n'
 import AOS from 'aos'
 
 const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
@@ -147,6 +148,7 @@ const webApi = axios.create({
 const authStore = useAuthStore()
 const toastStore = useToastStore()
 const router = useRouter()
+const { t } = useI18n()
 
 const isLoading = ref(false)
 const isSaving = ref(false)
@@ -199,7 +201,7 @@ const loadProfile = async () => {
     const res = await webApi.get('/profile')
     mapPayload(res.data?.data || {})
   } catch (e) {
-    error.value = e?.response?.data?.message || 'Failed to load profile data.'
+    error.value = e?.response?.data?.message || t('failed_load_profile')
   } finally {
     isLoading.value = false
   }
@@ -226,10 +228,10 @@ const saveProfile = async () => {
     })
     toastStore.addToast({
       type: 'success',
-      message: 'Profile updated successfully.'
+      message: t('profile_updated')
     })
   } catch (e) {
-    const msg = e?.response?.data?.message || 'Failed to update profile.'
+    const msg = e?.response?.data?.message || t('failed_update_profile')
     error.value = msg
     toastStore.addToast({ type: 'error', message: msg })
   } finally {
@@ -269,7 +271,7 @@ const extractApiError = (error, fallback) => {
 const updatePassword = async () => {
   actionMessage.value = ''
   if (!password.current || !password.new || !password.confirm) {
-    const msg = 'Please fill all password fields.'
+    const msg = t('fill_all_password_fields')
     actionType.value = 'error'
     actionMessage.value = msg
     toastStore.addToast({ type: 'error', message: msg })
@@ -277,7 +279,7 @@ const updatePassword = async () => {
     return
   }
   if (password.new !== password.confirm) {
-    const msg = 'Passwords do not match.'
+    const msg = t('passwords_do_not_match')
     actionType.value = 'error'
     actionMessage.value = msg
     toastStore.addToast({ type: 'error', message: msg })
@@ -285,7 +287,7 @@ const updatePassword = async () => {
     return
   }
   if (password.new.length < 8) {
-    const msg = 'Password must be at least 8 characters.'
+    const msg = t('password_too_short')
     actionType.value = 'error'
     actionMessage.value = msg
     toastStore.addToast({ type: 'error', message: msg })
@@ -300,14 +302,14 @@ const updatePassword = async () => {
       new_password_confirmation: password.confirm,
       confirm_password: password.confirm
     })
-    const msg = 'Password updated successfully.'
+    const msg = t('password_updated')
     actionType.value = 'success'
     actionMessage.value = msg
     toastStore.addToast({ type: 'success', message: msg })
     alert(msg)
     resetPassword()
   } catch (e) {
-    const msg = extractApiError(e, 'Failed to update password.')
+    const msg = extractApiError(e, t('failed_update_password'))
     actionType.value = 'error'
     actionMessage.value = msg
     toastStore.addToast({
@@ -319,11 +321,11 @@ const updatePassword = async () => {
 }
 
 const confirmDelete = async () => {
-  if (!confirm('Are you sure you want to delete your account?')) return
+  if (!confirm(t('confirm_delete_account'))) return
 
   try {
     await webApi.delete('/profile')
-    const msg = 'Account deleted successfully.'
+    const msg = t('account_deleted')
     actionType.value = 'success'
     actionMessage.value = msg
     toastStore.addToast({ type: 'success', message: msg })
@@ -331,7 +333,7 @@ const confirmDelete = async () => {
     await authStore.logout()
     router.push('/login')
   } catch (e) {
-    const msg = extractApiError(e, 'Failed to delete account.')
+    const msg = extractApiError(e, t('failed_delete_account'))
     actionType.value = 'error'
     actionMessage.value = msg
     toastStore.addToast({

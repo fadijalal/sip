@@ -3,8 +3,8 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-
 use App\Models\User;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
@@ -12,6 +12,10 @@ use Illuminate\Support\Facades\Validator;
 
 class ProfileController extends Controller
 {
+    public function __construct(private readonly NotificationService $notifications)
+    {
+    }
+
     private function profilePayload(User $user): array
     {
         $role = (string) $user->role;
@@ -44,7 +48,8 @@ class ProfileController extends Controller
 
     public function edit(Request $request)
     {
-         $user = Auth::user();
+        /** @var User $user */
+        $user = Auth::user();
 
         if ($request->expectsJson() || $request->ajax()) {
             return response()->json([
@@ -62,10 +67,7 @@ class ProfileController extends Controller
         $user = Auth::user();
 
         if ($user->role === 'admin') {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Admin profile is read-only.',
-            ], 422);
+            return response()->json(['status' => 'error', 'message' => 'ملف الأدمن للعرض فقط.'], 422);
         }
 
         $rules = [
@@ -101,7 +103,7 @@ class ProfileController extends Controller
 
         return response()->json([
             'status' => 'success',
-            'message' => 'Profile updated successfully.',
+            'message' => 'تم تحديث الملف الشخصي بنجاح.',
             'data' => $this->profilePayload($user->fresh()),
         ]);
     }
@@ -114,7 +116,7 @@ class ProfileController extends Controller
         if (! in_array((string) $user->role, ['student', 'supervisor', 'company'], true)) {
             return response()->json([
                 'status' => 'error',
-                'message' => 'This account type cannot change password from this screen.',
+                'message' => 'هذا النوع من الحسابات لا يمكنه تغيير كلمة المرور من هذه الشاشة.',
             ], 422);
         }
 
@@ -123,11 +125,6 @@ class ProfileController extends Controller
             'new_password' => ['required', 'string', 'min:8', 'different:current_password'],
             'new_password_confirmation' => ['nullable', 'string'],
             'confirm_password' => ['nullable', 'string'],
-        ], [
-            'current_password.required' => 'Current password is required.',
-            'new_password.required' => 'New password is required.',
-            'new_password.min' => 'New password must be at least 8 characters.',
-            'new_password.different' => 'New password must be different from current password.',
         ]);
 
         if ($validator->fails()) {
@@ -140,57 +137,27 @@ class ProfileController extends Controller
 
         $currentPassword = (string) $request->input('current_password');
         $newPassword = (string) $request->input('new_password');
-        $newPasswordConfirmation = (string) ($request->input('new_password_confirmation') ?: $request->input('confirm_password'));
+        $confirm = (string) ($request->input('new_password_confirmation') ?: $request->input('confirm_password'));
 
-        if ($newPasswordConfirmation === '') {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Password confirmation is required.',
-            ], 422);
+        if ($confirm === '' || ! hash_equals($newPassword, $confirm)) {
+            return response()->json(['status' => 'error', 'message' => 'Password confirmation does not match.'], 422);
         }
 
-        if (! hash_equals($newPassword, $newPasswordConfirmation)) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Password confirmation does not match.',
-            ], 422);
+        if (! Hash::check($currentPassword, (string) $user->password)) {
+            return response()->json(['status' => 'error', 'message' => 'كلمة المرور الحالية غير صحيحة.'], 422);
         }
 
-        $storedPassword = (string) $user->password;
-        $currentMatches = false;
+        $user->update(['password' => Hash::make($newPassword)]);
 
-        if ($storedPassword === '') {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Current password is not set for this account.',
-            ], 422);
-        }
+        $this->notifications->notifyUser(
+            userId: $user->id,
+            title: 'Password Changed',
+            description: 'تم تغيير كلمة المرور بنجاح.',
+            type: 'success',
+            meta: ['category' => 'auth']
+        );
 
-        if ($storedPassword !== '') {
-            try {
-                $currentMatches = Hash::check($currentPassword, $storedPassword)
-                    || password_verify($currentPassword, $storedPassword)
-                    || hash_equals($storedPassword, $currentPassword);
-            } catch (\Throwable) {
-                $currentMatches = hash_equals($storedPassword, $currentPassword);
-            }
-        }
-
-        if (! $currentMatches) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'Current password is incorrect.',
-            ], 422);
-        }
-
-        $user->update([
-            'password' => Hash::make($newPassword),
-        ]);
-
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Password updated successfully.',
-        ]);
+        return response()->json(['status' => 'success', 'message' => 'تم تحديث كلمة المرور بنجاح.']);
     }
 
     public function destroy(Request $request)
@@ -199,26 +166,19 @@ class ProfileController extends Controller
         $user = Auth::user();
 
         if (! in_array((string) $user->role, ['student', 'supervisor', 'company'], true)) {
-            return response()->json([
-                'status' => 'error',
-                'message' => 'This account type cannot be deleted.',
-            ], 422);
+            return response()->json(['status' => 'error', 'message' => 'هذا النوع من الحسابات لا يمكن حذفه.'], 422);
         }
 
         if (method_exists($user, 'tokens')) {
             $user->tokens()->delete();
         }
 
-        // Hard delete as requested: cascades remove related rows.
         $user->delete();
 
         Auth::guard('web')->logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return response()->json([
-            'status' => 'success',
-            'message' => 'Account deleted successfully.',
-        ]);
+        return response()->json(['status' => 'success', 'message' => 'تم حذف الحساب بنجاح.']);
     }
 }

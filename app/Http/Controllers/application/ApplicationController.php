@@ -4,13 +4,17 @@ namespace App\Http\Controllers\application;
 
 use App\Http\Controllers\Controller;
 use App\Models\Application;
-use App\Models\User;
+use App\Services\NotificationService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class ApplicationController extends Controller
 {
+    public function __construct(private readonly NotificationService $notifications)
+    {
+    }
+
     private function actionResponse(Request $request, string $message): JsonResponse|RedirectResponse
     {
         if ($request->expectsJson() || $request->ajax()) {
@@ -48,14 +52,14 @@ class ApplicationController extends Controller
 
     private function assertCanCompleteTraining(Application $application): void
     {
-        abort_unless($application->final_status === 'approved', 422, 'Training completion is available only for fully approved applications.');
-        abort_if($application->training_completed_at, 422, 'Training already completed.');
+        abort_unless($application->final_status === 'approved', 422, 'إنهاء التدريب متاح فقط بعد القبول النهائي.');
+        abort_if($application->training_completed_at, 422, 'تم إنهاء التدريب مسبقًا.');
 
         $durationMonths = (int) ($application->opportunity?->duration ?? 0);
-        abort_unless($application->approved_at && $durationMonths > 0, 422, 'Training timeline is not ready yet.');
+        abort_unless($application->approved_at && $durationMonths > 0, 422, 'مدة التدريب غير مهيأة بعد.');
 
         $endDate = $application->approved_at->copy()->addMonths($durationMonths)->startOfDay();
-        abort_unless(now()->startOfDay()->greaterThanOrEqualTo($endDate), 422, 'Training period is not finished yet.');
+        abort_unless(now()->startOfDay()->greaterThanOrEqualTo($endDate), 422, 'لم تنتهِ مدة التدريب بعد.');
     }
 
     public function applyApplication(Request $request): RedirectResponse
@@ -71,7 +75,7 @@ class ApplicationController extends Controller
 
         $cvPath = $request->file('cv')->store('cvs', 'public');
 
-        Application::create([
+        $application = Application::create([
             'student_id' => $request->user()->id,
             'opportunity_id' => $validated['opportunity_id'],
             'skills' => $validated['skills'] ?? null,
@@ -82,19 +86,48 @@ class ApplicationController extends Controller
             'final_status' => 'pending',
         ]);
 
-        return back()->with('success', 'successfully applied for the internship opportunity. We will notify you about the status of your application soon.');
+        // Student notification
+        $this->notifications->notifyUser(
+            userId: $application->student_id,
+            title: 'Application Submitted',
+            description: 'تم تقديم الطلب بنجاح وهو الآن قيد المراجعة.',
+            type: 'success',
+            meta: ['category' => 'application']
+        );
+
+        // Company notification
+        $companyId = (int) optional($application->opportunity)->company_user_id;
+        if ($companyId > 0) {
+            $this->notifications->notifyUser(
+                userId: $companyId,
+                title: 'New Application',
+                description: 'يوجد طلب تدريب جديد يحتاج مراجعة.',
+                type: 'info',
+                meta: ['category' => 'application']
+            );
+        }
+
+        return back()->with('success', 'تم تقديم الطلب بنجاح، وسيتم إشعارك بحالة الطلب قريبًا.');
     }
 
     public function companyApplicationApprove(Request $request, int $id): JsonResponse|RedirectResponse
     {
         $this->ensureRole($request, 'company');
 
-        $application = Application::findOrFail($id);
+        $application = Application::with(['student'])->findOrFail($id);
         $application->company_status = 'approved';
         $this->updateFinalStatus($application);
         $application->save();
 
-        return $this->actionResponse($request, 'successfully approved the application.');
+        $this->notifications->notifyUser(
+            userId: (int) $application->student_id,
+            title: 'Company Approved Your Application',
+            description: 'تمت الموافقة على طلبك من الشركة.',
+            type: 'success',
+            meta: ['category' => 'application']
+        );
+
+        return $this->actionResponse($request, 'تمت الموافقة على الطلب بنجاح.');
     }
 
     public function companyApplicationReject(Request $request, int $id): JsonResponse|RedirectResponse
@@ -106,7 +139,15 @@ class ApplicationController extends Controller
         $application->final_status = 'rejected';
         $application->save();
 
-        return $this->actionResponse($request, 'successfully rejected the application.');
+        $this->notifications->notifyUser(
+            userId: (int) $application->student_id,
+            title: 'Company Rejected Your Application',
+            description: 'تم رفض طلبك من الشركة.',
+            type: 'danger',
+            meta: ['category' => 'application']
+        );
+
+        return $this->actionResponse($request, 'تم رفض الطلب بنجاح.');
     }
 
     public function supervisorApplicationApprove(Request $request, int $id): JsonResponse|RedirectResponse
@@ -118,7 +159,15 @@ class ApplicationController extends Controller
         $this->updateFinalStatus($application);
         $application->save();
 
-        return $this->actionResponse($request, 'successfully approved the application.');
+        $this->notifications->notifyUser(
+            userId: (int) $application->student_id,
+            title: 'Supervisor Approved Your Application',
+            description: 'تمت الموافقة على طلبك من المشرف.',
+            type: 'success',
+            meta: ['category' => 'application']
+        );
+
+        return $this->actionResponse($request, 'تمت الموافقة على الطلب بنجاح.');
     }
 
     public function supervisorReject(Request $request, int $id): JsonResponse|RedirectResponse
@@ -130,7 +179,15 @@ class ApplicationController extends Controller
         $application->final_status = 'rejected';
         $application->save();
 
-        return $this->actionResponse($request, 'successfully rejected the application.');
+        $this->notifications->notifyUser(
+            userId: (int) $application->student_id,
+            title: 'Supervisor Rejected Your Application',
+            description: 'تم رفض طلبك من المشرف.',
+            type: 'danger',
+            meta: ['category' => 'application']
+        );
+
+        return $this->actionResponse($request, 'تم رفض الطلب بنجاح.');
     }
 
     public function companyCompleteTraining(Request $request, int $id): RedirectResponse
@@ -156,7 +213,15 @@ class ApplicationController extends Controller
 
         $application->save();
 
-        return back()->with('success', 'Company final evaluation saved successfully.');
+        $this->notifications->notifyUser(
+            userId: (int) $application->student_id,
+            title: 'Company Final Evaluation Submitted',
+            description: 'تم إرسال التقييم النهائي من الشركة.',
+            type: 'info',
+            meta: ['category' => 'evaluation']
+        );
+
+        return back()->with('success', 'تم حفظ تقييم الشركة النهائي بنجاح.');
     }
 
     public function supervisorCompleteTraining(Request $request, int $id): RedirectResponse
@@ -182,12 +247,17 @@ class ApplicationController extends Controller
 
         $application->save();
 
-        return back()->with('success', 'Supervisor final evaluation saved successfully.');
+        $this->notifications->notifyUser(
+            userId: (int) $application->student_id,
+            title: 'Supervisor Final Evaluation Submitted',
+            description: 'تم إرسال التقييم النهائي من المشرف.',
+            type: 'info',
+            meta: ['category' => 'evaluation']
+        );
+
+        return back()->with('success', 'تم حفظ تقييم المشرف النهائي بنجاح.');
     }
 
-   
-
-    // Redirect helpers for web-only flow
     public function myApplications(Request $request): RedirectResponse
     {
         $this->ensureRole($request, 'student');

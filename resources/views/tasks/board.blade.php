@@ -8,12 +8,22 @@
 </head>
 <body class='bg-light'>
 <div class='container py-4'>
+@php
+    $backUrl = match ($role) {
+        'admin' => route('tasks.admin.workspace'),
+        'supervisor' => route('supervisor.weekly-tasks'),
+        'company' => route('company.applicants.index'),
+        'student' => route('student.workspace.index'),
+        default => route('tasks.workspace'),
+    };
+@endphp
+
 <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-3">
     <div>
         <h3 class="fw-bold mb-1">Training Tasks Board</h3>
         <p class="text-muted mb-0">{{ $application->student->name }} - {{ $application->opportunity->title ?? '-' }}</p>
     </div>
-    <a href="{{ url()->previous() }}" class="btn btn-outline-secondary rounded-pill">Back</a>
+    <a href="{{ $backUrl }}" class="btn btn-outline-secondary rounded-pill">Back</a>
 </div>
 
 @if(session('success'))
@@ -201,4 +211,5 @@ $needsSupervisorFinal = $trainingEnded && in_array($role, ['supervisor', 'admin'
 </div>
 </body>
 </html>
+
 

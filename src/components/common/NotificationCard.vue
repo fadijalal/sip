@@ -16,7 +16,7 @@
           {{ title }}
           <span v-if="unread" class="unread-dot"></span>
         </h6>
-        <small class="notif-time">{{ timeAgo }}</small>
+        <small class="notif-time">{{ timeAgo(time) }}</small>
       </div>
 
       <p class="notif-desc" v-if="description">{{ description }}</p>
@@ -27,7 +27,7 @@
           {{ category }}
         </span>
         <span>•</span>
-        <span>{{ timeAgo }}</span>
+        <span>{{ timeAgo(time) }}</span>
       </div>
     </div>
 
@@ -292,3 +292,4 @@ const categoryIcon = computed(() => {
   }
 }
 </style>
+

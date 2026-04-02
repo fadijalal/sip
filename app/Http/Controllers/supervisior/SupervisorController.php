@@ -11,6 +11,7 @@ use App\Models\Application;
 use App\Models\Task;
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
+use App\Services\NotificationService;
 
 class SupervisorController extends Controller
 {
@@ -22,6 +23,8 @@ class SupervisorController extends Controller
 
         return back()->with('success', $message);
     }
+
+    public function __construct(private readonly NotificationService $notifications) {}
 
     private function ensureRole(): void
     {
@@ -44,6 +47,14 @@ class SupervisorController extends Controller
         $student->status = 'active';
         $student->save();
 
+        $this->notifications->notifyUser(
+            userId: $id,
+            title: 'Student Account Activated',
+            description: 'Your student account has been activated successfully.',
+            type: 'success',
+            meta: ['category' => 'auth']
+        );
+
         return $this->actionResponse($request, 'successfully activated the student account.');
     }
 
@@ -54,6 +65,14 @@ class SupervisorController extends Controller
         $student = User::where('id', $id)->where('role', 'student')->firstOrFail();
         $student->status = 'rejected';
         $student->save();
+
+        $this->notifications->notifyUser(
+            userId: $id,
+            title: 'Student Account Rejected',
+            description: 'Your student account has been rejected. Please contact your supervisor for more information.',
+            type: 'error',
+            meta: ['category' => 'auth']
+        );
 
         return $this->actionResponse($request, 'successfully rejected the student account.');
     }
@@ -421,8 +440,16 @@ class SupervisorController extends Controller
         $student->status = 'deleted';
         $student->save();
 
-        return $this->actionResponse($request, 'student deleted successfully.');
-    }
+        $this->notifications->notifyUser(
+            userId: $student->id,
+            title: 'Student Account Deleted',
+            description: 'Your student account has been deleted. Please contact your supervisor for more information.',
+            type: 'error',
+            meta: ['category' => 'auth']
+        );
+
+         return $this->actionResponse($request, 'student deleted successfully.');
+     }
 
     private function calculateProgress($application)
     {

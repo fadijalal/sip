@@ -6,11 +6,11 @@
           <div class="icon-bell-main"><i class="bi bi-bell-fill"></i></div>
           <div>
             <h4 class="fw-bold mb-0">{{ t('notifications') }}</h4>
-            <p class="text-muted small mb-0">{{ unreadCount }} unread notifications</p>
+            <p class="text-muted small mb-0">{{ unreadCount }} {{ t('unread') }}</p>
           </div>
         </div>
         <button class="btn-mark-all" @click="markAllAsRead" :disabled="isLoading || notifications.length === 0">
-          <i class="bi bi-check2-all me-1"></i>Mark all as read
+          <i class="bi bi-check2-all me-1"></i>{{ t('mark_all_as_read') }}
         </button>
       </div>
     </div>
@@ -20,7 +20,7 @@
     </div>
 
     <div v-else-if="notifications.length === 0" class="text-center text-muted py-5">
-      No notifications yet.
+      {{ t('no_notifications') }}
     </div>
 
     <div v-else class="notifications-list">
@@ -78,7 +78,7 @@ const loadNotifications = async () => {
     const res = await webApi.get('/notifications')
     notifications.value = res.data?.data?.notifications || []
   } catch {
-    toastStore.addToast({ type: 'error', message: 'Failed to load notifications.' })
+    toastStore.addToast({ type: 'error', message: t('failed_load_notifications') })
   } finally {
     isLoading.value = false
   }
@@ -89,7 +89,7 @@ const markAsRead = async (notif) => {
     await webApi.post(`/notifications/${notif.id}/mark-read`)
     notif.unread = false
   } catch {
-    toastStore.addToast({ type: 'error', message: 'Failed to mark notification as read.' })
+    toastStore.addToast({ type: 'error', message: t('failed_mark_notification_read') })
   }
 }
 
@@ -98,7 +98,7 @@ const markAllAsRead = async () => {
     await webApi.post('/notifications/mark-all-read')
     notifications.value.forEach(n => { n.unread = false })
   } catch {
-    toastStore.addToast({ type: 'error', message: 'Failed to mark all as read.' })
+    toastStore.addToast({ type: 'error', message: t('failed_mark_all_notifications_read') })
   }
 }
 
@@ -107,7 +107,7 @@ const deleteNotification = async (notif) => {
     await webApi.delete(`/notifications/${notif.id}`)
     notifications.value = notifications.value.filter(n => n.id !== notif.id)
   } catch {
-    toastStore.addToast({ type: 'error', message: 'Failed to delete notification.' })
+    toastStore.addToast({ type: 'error', message: t('failed_delete_notification') })
   }
 }
 

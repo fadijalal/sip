@@ -46,7 +46,7 @@ const arTranslations = {
 }
 
 // اللغة الحالية
-const currentLang = ref(localStorage.getItem('lang') || 'en')
+const currentLang = ref(localStorage.getItem('lang') || 'ar')
 
 // دالة تنسيق التاريخ
 const formatDate = (date, formatStr = 'PPP') => {

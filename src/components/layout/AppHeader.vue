@@ -49,39 +49,12 @@
           </div>
 
           <!-- الإشعارات -->
-          <div class="dropdown">
-            <button
-              class="btn-notification"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-            >
-              <i class="bi bi-bell"></i>
-              <span v-if="unreadCount > 0" class="notification-badge">
-                {{ unreadCount > 9 ? '9+' : unreadCount }}
-              </span>
-            </button>
-            <div class="dropdown-menu dropdown-menu-end notification-dropdown">
-              <div class="notification-header">
-                <h6 class="fw-bold mb-0" v-text="t('notifications')"></h6>
-                <router-link to="/notifications" class="small" v-text="t('view_all')"></router-link>
-              </div>
-              <div class="notification-list">
-                <div v-for="notif in recentNotifications" :key="notif.id" class="notification-item">
-                  <!-- محتوى الإشعار -->
-                  <div class="d-flex gap-2 p-2">
-                    <i :class="notif.icon" class="text-primary"></i>
-                    <div>
-                      <p class="mb-0 small fw-bold">{{ notif.title }}</p>
-                      <small class="text-muted">{{ notif.time }}</small>
-                    </div>
-                  </div>
-                </div>
-                <div v-if="recentNotifications.length === 0" class="text-center p-3 text-muted small">
-                  {{ t('no_notifications') }}
-                </div>
-              </div>
-            </div>
-          </div>
+          <button class="btn-notification" @click="openNotifications" :aria-label="t('notifications')">
+            <i class="bi bi-bell"></i>
+            <span v-if="unreadCount > 0" class="notification-badge">
+              {{ unreadCount > 99 ? '99+' : unreadCount }}
+            </span>
+          </button>
 
           <!-- تبديل اللغة -->
           <LanguageSwitcher />
@@ -106,8 +79,8 @@
 </template>
 
 <script setup>
-import { computed } from 'vue'
-import { useRoute } from 'vue-router'
+import { computed, onMounted, onUnmounted } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth'
 import { useNotificationsStore } from '@/stores/notifications'
 import { useI18n } from '@/composables/useI18n'
@@ -116,6 +89,7 @@ import ThemeToggle from './ThemeToggle.vue'
 
 const { t } = useI18n()
 const route = useRoute()
+const router = useRouter()
 const authStore = useAuthStore()
 const notificationsStore = useNotificationsStore()
 
@@ -167,7 +141,6 @@ const userAvatar = computed(() => authStore.user?.avatar)
 const isSupervisor = computed(() => authStore.userType === 'supervisor')
 const supervisorCode = computed(() => authStore.user?.supervisor_code || '')
 const unreadCount = computed(() => notificationsStore.unreadCount)
-const recentNotifications = computed(() => notificationsStore.recentNotifications)
 
 const copySupervisorCode = async () => {
   if (!supervisorCode.value) return
@@ -178,6 +151,19 @@ const copySupervisorCode = async () => {
     console.error('Failed to copy supervisor code', error)
   }
 }
+
+const openNotifications = async () => {
+  await notificationsStore.fetchNotifications({ withSound: false })
+  router.push('/notifications')
+}
+
+onMounted(() => {
+  notificationsStore.startPolling()
+})
+
+onUnmounted(() => {
+  notificationsStore.stopPolling()
+})
 </script>
 
 <style scoped>

@@ -7,15 +7,15 @@
             <i class="bi bi-mortarboard-fill"></i>
           </div>
           <h3 class="fw-bold mb-1">SIP</h3>
-          <p class="text-muted small">Sign in to access your training dashboard</p>
+          <p class="text-muted small">{{ t('student_subtitle') }}</p>
         </div>
 
         <form @submit.prevent="handleLogin">
           <div class="mb-3">
             <label class="form-label fw-bold small">
-              <button type="button" class="switch-link" :class="{ active: identifierMode === 'id' }" @click="setIdentifierMode('id')">University ID</button>
+              <button type="button" class="switch-link" :class="{ active: identifierMode === 'id' }" @click="setIdentifierMode('id')">{{ t('university_id') }}</button>
               /
-              <button type="button" class="switch-link" :class="{ active: identifierMode === 'email' }" @click="setIdentifierMode('email')">Email</button>
+              <button type="button" class="switch-link" :class="{ active: identifierMode === 'email' }" @click="setIdentifierMode('email')">{{ t('email_label') }}</button>
             </label>
 
             <div class="input-group">
@@ -25,7 +25,7 @@
               <input
                 :type="identifierMode === 'email' ? 'email' : 'text'"
                 class="form-control"
-                :placeholder="identifierMode === 'email' ? 'student@example.com' : 'STU-2024-001'"
+                :placeholder="identifierMode === 'email' ? t('email_placeholder') : t('student_id_placeholder')"
                 v-model="form.identifier"
                 required
                 :disabled="isLoading"
@@ -34,7 +34,7 @@
           </div>
 
           <div class="mb-2">
-            <label class="form-label fw-bold small">Password</label>
+            <label class="form-label fw-bold small">{{ t('password_label') }}</label>
             <div class="input-group">
               <span class="input-group-text">
                 <i class="fas fa-lock"></i>
@@ -56,26 +56,26 @@
           <div class="d-flex justify-content-between align-items-center my-3">
             <div class="form-check">
               <input type="checkbox" class="form-check-input" id="rememberMe" v-model="form.remember" />
-              <label class="form-check-label small" for="rememberMe">Remember me</label>
+              <label class="form-check-label small" for="rememberMe">{{ t('remember_me') }}</label>
             </div>
-            <a href="#" class="forgot-link" @click.prevent="handleForgot">Forgot password?</a>
+            <a href="#" class="forgot-link" @click.prevent="handleForgot">{{ t('forgot_password') }}</a>
           </div>
 
           <button type="submit" class="btn-login" :disabled="isLoading">
             <span v-if="!isLoading">
               <i class="fas fa-right-to-bracket me-2"></i>
-              Sign In
+              {{ t('sign_in') }}
             </span>
             <span v-else>
               <span class="spinner-border spinner-border-sm me-2"></span>
-              Signing in...
+              {{ t('signing_in') }}
             </span>
           </button>
 
           <div class="text-center mt-4">
             <small class="text-muted">
-              Don't have an account?
-              <a href="#" @click.prevent="goToRegister" class="register-link fw-bold">Register now</a>
+              {{ t('no_account') }}
+              <a href="#" @click.prevent="goToRegister" class="register-link fw-bold">{{ t('register_now') }}</a>
             </small>
           </div>
         </form>
@@ -87,8 +87,10 @@
 <script setup>
 import { reactive, ref } from 'vue'
 import { useToastStore } from '@/stores/toast'
+import { useI18n } from '@/composables/useI18n'
 
 const toastStore = useToastStore()
+const { t } = useI18n()
 
 const identifierMode = ref('id')
 const isLoading = ref(false)
@@ -109,7 +111,7 @@ const handleLogin = () => {
 
   const token = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content')
   if (!token) {
-    toastStore.addToast({ type: 'error', title: 'Error', message: 'CSRF token not found.' })
+    toastStore.addToast({ type: 'error', title: t('error'), message: 'CSRF token not found.' })
     isLoading.value = false
     return
   }
@@ -141,7 +143,7 @@ const handleLogin = () => {
 }
 
 const handleForgot = () => {
-  toastStore.addToast({ type: 'info', title: 'Info', message: 'Forgot password flow will be added next.' })
+  toastStore.addToast({ type: 'info', title: t('forgot_password'), message: t('forgot_password_message') })
 }
 
 const goToRegister = () => {

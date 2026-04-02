@@ -4,14 +4,17 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
-use App\Models\UserNotification;
+use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Schema;
 
 class LoginController extends Controller
 {
+    public function __construct(private readonly NotificationService $notifications)
+    {
+    }
+
     public function login(Request $request)
     {
         $request->validate([
@@ -22,7 +25,6 @@ class LoginController extends Controller
         $identifier = (string) $request->identifier;
         $password = (string) $request->password;
 
-        // Fixed admin login
         if ($identifier === 'admin' && $password === 'admin123') {
             $admin = User::where('email', 'admin')->first();
 
@@ -75,20 +77,13 @@ class LoginController extends Controller
 
     private function logLoginNotification(int $userId): void
     {
-        try {
-            if (! Schema::hasTable('user_notifications')) {
-                return;
-            }
-
-            UserNotification::create([
-                'user_id' => $userId,
-                'title' => 'Login Successful',
-                'description' => 'تم تسجيل الدخول بنجاح.',
-                'type' => 'success',
-                'meta' => ['category' => 'auth'],
-            ]);
-        } catch (\Throwable) {
-            // Never block login because of notifications failures.
-        }
+        $this->notifications->notifyUser(
+            userId: $userId,
+            title: 'Login Successful',
+            description: 'تم تسجيل الدخول بنجاح.',
+            type: 'success',
+            meta: ['category' => 'auth']
+        );
     }
 }
+

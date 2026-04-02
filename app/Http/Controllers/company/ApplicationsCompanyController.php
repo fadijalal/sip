@@ -6,6 +6,8 @@ use App\Http\Controllers\Controller;
 use App\Models\Application;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\UserNotification;
+use Illuminate\Support\Facades\Schema;
 
 class ApplicationsCompanyController extends Controller
 {
@@ -194,5 +196,23 @@ class ApplicationsCompanyController extends Controller
         }
 
         return view('spa');
+    }
+
+    private function applicationNotification(int $userId, string $title, string $description): void
+    {
+        try {
+            if (! Schema::hasTable('user_notifications')) {
+                return;
+            }
+
+            UserNotification::create([
+                'user_id' => $userId,
+                'title' => $title,
+                'description' => $description,
+                'type' => 'success',
+                // 'meta' => ['category' => 'auth'],
+            ]);
+        } catch (\Throwable) {
+        }
     }
 }

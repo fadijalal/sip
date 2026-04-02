@@ -4,49 +4,49 @@
       <div class="register-card animate__animated animate__fadeIn">
         <div class="text-center mb-4">
           <div class="logo-box"><i class="bi bi-person-plus-fill fs-3"></i></div>
-          <h3 class="fw-bold mb-1">SIP Registration</h3>
-          <p class="text-muted small mb-4">Create your account to start your training journey</p>
+          <h3 class="fw-bold mb-1">{{ t('create_account') }}</h3>
+          <p class="text-muted small mb-4">{{ t('join_platform') }}</p>
         </div>
 
         <div class="tabs">
-          <button type="button" class="tab-btn student-btn" :class="{ active: role === 'student' }" @click="setRole('student')">Student Registration</button>
-          <button type="button" class="tab-btn supervisor-btn" :class="{ active: role === 'supervisor' }" @click="setRole('supervisor')">Supervisor Registration</button>
-          <button type="button" class="tab-btn company-btn" :class="{ active: role === 'company' }" @click="setRole('company')">Company Registration</button>
+          <button type="button" class="tab-btn student-btn" :class="{ active: role === 'student' }" @click="setRole('student')">{{ t('student_portal') }}</button>
+          <button type="button" class="tab-btn supervisor-btn" :class="{ active: role === 'supervisor' }" @click="setRole('supervisor')">{{ t('supervisor_portal') }}</button>
+          <button type="button" class="tab-btn company-btn" :class="{ active: role === 'company' }" @click="setRole('company')">{{ t('company_portal') }}</button>
         </div>
 
         <form @submit.prevent="submitRegister">
           <div v-if="role === 'student'">
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label class="form-label">Full Name</label>
+                <label class="form-label">{{ t('full_name') }}</label>
                 <input type="text" class="form-control" v-model="student.name" required />
               </div>
               <div class="col-md-6 mb-3">
-                <label class="form-label">University ID</label>
+                <label class="form-label">{{ t('university_id') }}</label>
                 <input type="text" class="form-control" v-model="student.university_id" required />
               </div>
             </div>
             <div class="mb-3">
-              <label class="form-label">Email</label>
+              <label class="form-label">{{ t('email_label') }}</label>
               <input type="email" class="form-control" v-model="student.email" />
             </div>
             <div class="mb-3">
-              <label class="form-label">Phone Number</label>
+              <label class="form-label">{{ t('phone_number') }}</label>
               <input type="text" class="form-control" v-model="student.phone_number" required />
             </div>
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label class="form-label">Password</label>
+                <label class="form-label">{{ t('password_label') }}</label>
                 <input type="password" class="form-control" v-model="student.password" required />
               </div>
               <div class="col-md-6 mb-3">
-                <label class="form-label">Confirm Password</label>
+                <label class="form-label">{{ t('confirm_password') }}</label>
                 <input type="password" class="form-control" v-model="student.password_confirmation" required />
               </div>
             </div>
             <div class="supervisor-box">
-              <strong>Supervisor Code</strong>
-              <p class="small text-muted mb-2">Enter your assigned supervisor code</p>
+              <strong>{{ t('supervisor_id') }}</strong>
+              <p class="small text-muted mb-2">{{ t('supervisor_first_time') }}</p>
               <input type="text" class="form-control" v-model="student.supervisor_code" required />
             </div>
           </div>
@@ -54,29 +54,29 @@
           <div v-else-if="role === 'supervisor'">
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label class="form-label">Full Name</label>
+                <label class="form-label">{{ t('full_name') }}</label>
                 <input type="text" class="form-control" v-model="supervisor.name" required />
               </div>
               <div class="col-md-6 mb-3">
-                <label class="form-label">University ID</label>
+                <label class="form-label">{{ t('university_id') }}</label>
                 <input type="text" class="form-control" v-model="supervisor.university_id" required />
               </div>
             </div>
             <div class="mb-3">
-              <label class="form-label">Email</label>
+              <label class="form-label">{{ t('email_label') }}</label>
               <input type="email" class="form-control" v-model="supervisor.email" />
             </div>
             <div class="mb-3">
-              <label class="form-label">Phone Number</label>
+              <label class="form-label">{{ t('phone_number') }}</label>
               <input type="text" class="form-control" v-model="supervisor.phone_number" required />
             </div>
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label class="form-label">Password</label>
+                <label class="form-label">{{ t('password_label') }}</label>
                 <input type="password" class="form-control" v-model="supervisor.password" required />
               </div>
               <div class="col-md-6 mb-3">
-                <label class="form-label">Confirm Password</label>
+                <label class="form-label">{{ t('confirm_password') }}</label>
                 <input type="password" class="form-control" v-model="supervisor.password_confirmation" required />
               </div>
             </div>
@@ -84,49 +84,49 @@
 
           <div v-else>
             <div class="mb-3">
-              <label class="form-label">Contact Name</label>
+              <label class="form-label">{{ t('full_name') }}</label>
               <input type="text" class="form-control" v-model="company.name" required />
             </div>
             <div class="mb-3">
-              <label class="form-label">Company Name</label>
+              <label class="form-label">{{ t('company_name') }}</label>
               <input type="text" class="form-control" v-model="company.company_name" required />
             </div>
             <div class="mb-3">
-              <label class="form-label">Email</label>
+              <label class="form-label">{{ t('email_label') }}</label>
               <input type="email" class="form-control" v-model="company.email" required />
             </div>
             <div class="mb-3">
-              <label class="form-label">Phone Number</label>
+              <label class="form-label">{{ t('phone_number') }}</label>
               <input type="text" class="form-control" v-model="company.phone_number" required />
             </div>
             <div class="mb-3">
-              <label class="form-label">Company Address</label>
+              <label class="form-label">{{ t('location') }}</label>
               <input type="text" class="form-control" v-model="company.company_address" required />
             </div>
             <div class="mb-3">
-              <label class="form-label">Company Website</label>
+              <label class="form-label">{{ t('website') }}</label>
               <input type="text" class="form-control" v-model="company.company_website" />
             </div>
             <div class="row">
               <div class="col-md-6 mb-3">
-                <label class="form-label">Password</label>
+                <label class="form-label">{{ t('password_label') }}</label>
                 <input type="password" class="form-control" v-model="company.password" required />
               </div>
               <div class="col-md-6 mb-3">
-                <label class="form-label">Confirm Password</label>
+                <label class="form-label">{{ t('confirm_password') }}</label>
                 <input type="password" class="form-control" v-model="company.password_confirmation" required />
               </div>
             </div>
           </div>
 
           <button type="submit" class="main-btn" :disabled="isLoading">
-            <span v-if="!isLoading"><i class="fa-solid fa-arrow-right-to-bracket me-2"></i>Create Account</span>
-            <span v-else><span class="spinner-border spinner-border-sm me-2"></span>Creating...</span>
+            <span v-if="!isLoading"><i class="fa-solid fa-arrow-right-to-bracket me-2"></i>{{ t('create_account') }}</span>
+            <span v-else><span class="spinner-border spinner-border-sm me-2"></span>{{ t('signing_up') }}</span>
           </button>
 
           <div class="footer">
-            Already have an account?
-            <a href="#" @click.prevent="goLogin">Sign in</a>
+            {{ t('already_member') }}
+            <a href="#" @click.prevent="goLogin">{{ t('sign_in') }}</a>
           </div>
         </form>
       </div>
@@ -136,6 +136,9 @@
 
 <script setup>
 import { reactive, ref } from 'vue'
+import { useI18n } from '@/composables/useI18n'
+
+const { t } = useI18n()
 
 const role = ref('student')
 const isLoading = ref(false)
