@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Auth;
+
+use App\Http\Controllers\Controller;
 
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -56,7 +58,8 @@ class ProfileController extends Controller
 
     public function update(Request $request)
     {
-         $user = Auth::user();
+        /** @var User $user */
+        $user = Auth::user();
 
         if ($user->role === 'admin') {
             return response()->json([

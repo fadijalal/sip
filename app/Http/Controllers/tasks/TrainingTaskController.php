@@ -1,9 +1,10 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\tasks;
 
 use App\Models\Application;
 use App\Models\Task;
+use App\Http\Controllers\Controller;
 use App\Services\TrelloService;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Http\RedirectResponse;

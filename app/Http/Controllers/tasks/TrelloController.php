@@ -1,7 +1,8 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\tasks;
 
+use App\Http\Controllers\Controller;
 use App\Services\TrelloService;
 
 class TrelloController extends Controller
