@@ -5,11 +5,24 @@ namespace App\Http\Controllers\application;
 use App\Http\Controllers\Controller;
 use App\Models\Application;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class ApplicationController extends Controller
 {
+    private function actionResponse(Request $request, string $message): JsonResponse|RedirectResponse
+    {
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'status' => 'success',
+                'message' => $message,
+            ]);
+        }
+
+        return back()->with('success', $message);
+    }
+
     private function ensureRole(Request $request, string $role): void
     {
         abort_unless($request->user() && $request->user()->role === $role, 403);
@@ -72,7 +85,7 @@ class ApplicationController extends Controller
         return back()->with('success', 'successfully applied for the internship opportunity. We will notify you about the status of your application soon.');
     }
 
-    public function companyApplicationApprove(Request $request, int $id): RedirectResponse
+    public function companyApplicationApprove(Request $request, int $id): JsonResponse|RedirectResponse
     {
         $this->ensureRole($request, 'company');
 
@@ -81,10 +94,10 @@ class ApplicationController extends Controller
         $this->updateFinalStatus($application);
         $application->save();
 
-        return back()->with('success', 'successfully approved the application.');
+        return $this->actionResponse($request, 'successfully approved the application.');
     }
 
-    public function companyApplicationReject(Request $request, int $id): RedirectResponse
+    public function companyApplicationReject(Request $request, int $id): JsonResponse|RedirectResponse
     {
         $this->ensureRole($request, 'company');
 
@@ -93,10 +106,10 @@ class ApplicationController extends Controller
         $application->final_status = 'rejected';
         $application->save();
 
-        return back()->with('success', 'successfully rejected the application.');
+        return $this->actionResponse($request, 'successfully rejected the application.');
     }
 
-    public function supervisorApplicationApprove(Request $request, int $id): RedirectResponse
+    public function supervisorApplicationApprove(Request $request, int $id): JsonResponse|RedirectResponse
     {
         $this->ensureRole($request, 'supervisor');
 
@@ -105,10 +118,10 @@ class ApplicationController extends Controller
         $this->updateFinalStatus($application);
         $application->save();
 
-        return back()->with('success', 'successfully approved the application.');
+        return $this->actionResponse($request, 'successfully approved the application.');
     }
 
-    public function supervisorReject(Request $request, int $id): RedirectResponse
+    public function supervisorReject(Request $request, int $id): JsonResponse|RedirectResponse
     {
         $this->ensureRole($request, 'supervisor');
 
@@ -117,7 +130,7 @@ class ApplicationController extends Controller
         $application->final_status = 'rejected';
         $application->save();
 
-        return back()->with('success', 'successfully rejected the application.');
+        return $this->actionResponse($request, 'successfully rejected the application.');
     }
 
     public function companyCompleteTraining(Request $request, int $id): RedirectResponse

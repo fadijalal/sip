@@ -56,9 +56,13 @@ class TrainingTaskController extends Controller
             ->latest()
             ->get();
 
-        return view('tasks.admin-workspace', [
-            'approvedApplications' => $approvedApplications,
-        ]);
+        if ($request->expectsJson() || $request->ajax()) {
+            return response()->json([
+                'approved_applications' => $approvedApplications,
+            ]);
+        }
+
+        return view('spa');
     }
 
     public function adminBroadcastTask(Request $request): RedirectResponse

@@ -108,6 +108,14 @@
                     <button class="btn-icon-accent btn-sm" @click="viewApplicant(applicant)">
                       <i class="bi bi-eye"></i>
                     </button>
+                    <button
+                      v-if="applicant.can_open_board"
+                      class="btn btn-sm btn-outline-primary"
+                      @click="openBoard(applicant)"
+                      title="Open Task Board"
+                    >
+                      <i class="bi bi-kanban"></i>
+                    </button>
                     <button v-if="applicant.status === 'pending'" class="btn btn-sm btn-outline-success" @click="acceptApplicant(applicant)">
                       <i class="bi bi-check-lg"></i>
                     </button>
@@ -138,6 +146,48 @@
           </nav>
         </div>
       </div>
+
+      <div class="table-card mt-4">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+          <h5 class="fw-bold mb-0">Final Approved Students - Task Progress</h5>
+          <span class="text-muted small">{{ approvedTrainees.length }} students</span>
+        </div>
+        <div v-if="approvedTrainees.length === 0" class="text-muted small py-3">
+          No final approved students yet.
+        </div>
+        <div v-else class="table-responsive">
+          <table class="table">
+            <thead>
+              <tr>
+                <th>Student</th>
+                <th>Program</th>
+                <th>Progress</th>
+                <th>Actions</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr v-for="trainee in approvedTrainees" :key="trainee.application_id">
+                <td>
+                  <div class="fw-bold">{{ trainee.student_name }}</div>
+                  <small class="text-muted">{{ trainee.student_email }}</small>
+                </td>
+                <td>{{ trainee.program_title }}</td>
+                <td style="min-width: 220px;">
+                  <div class="progress" style="height: 10px;">
+                    <div class="progress-bar bg-success" :style="{ width: `${trainee.progress_percent}%` }"></div>
+                  </div>
+                  <small class="text-muted">{{ trainee.progress_percent }}%</small>
+                </td>
+                <td>
+                  <button class="btn btn-sm btn-primary" @click="openBoard(trainee)">
+                    <i class="bi bi-kanban me-1"></i> Board
+                  </button>
+                </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
     </div>
   </div>
 </template>
@@ -156,6 +206,7 @@ const router = useRouter()
 const isLoading = ref(false)
 const applicants = ref([])
 const programs = ref([])
+const approvedTrainees = ref([])
 const searchQuery = ref('')
 const programFilter = ref('all')
 const statusFilter = ref('all')
@@ -209,6 +260,7 @@ const loadApplicants = async () => {
     const data = response.data.data
     
     applicants.value = data.applicants || []
+    approvedTrainees.value = data.approved_trainees || []
     pagination.value = data.pagination || { current_page: 1, last_page: 1, per_page: 15, total: 0 }
     
     if (data.stats) {
@@ -241,6 +293,13 @@ const changePage = (page) => {
 
 const viewApplicant = (applicant) => {
   router.push(`/company/applicants/${applicant.id}`)
+}
+
+const openBoard = (item) => {
+  const url = item.board_url
+  if (url) {
+    window.location.href = url
+  }
 }
 
 const acceptApplicant = async (applicant) => {

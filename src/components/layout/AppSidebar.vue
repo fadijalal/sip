@@ -56,7 +56,7 @@ import { useAuthStore } from '@/stores/auth'
 import { useI18n } from '@/composables/useI18n'
 import { useToastStore } from '@/stores/toast'
 
-const { t } = useI18n()
+const { t, currentLang } = useI18n()
 const route = useRoute()
 const router = useRouter()
 const authStore = useAuthStore()
@@ -79,7 +79,8 @@ const menuSections = computed(() => {
           { path: '/admin/dashboard', icon: 'bi bi-speedometer2', key: 'dashboard' },
           { path: '/admin/users', icon: 'bi bi-people', key: 'users' },
           { path: '/admin/companies', icon: 'bi bi-building', key: 'companies' },
-          { path: '/admin/reports', icon: 'bi bi-file-earmark-bar-graph', key: 'reports' }
+          { path: '/admin/reports', icon: 'bi bi-file-earmark-bar-graph', key: 'reports' },
+          { path: '/admin/tasks/workspace', icon: 'bi bi-list-task', key: 'general_tasks' }
         ]
       },
       {
@@ -109,6 +110,7 @@ const menuSections = computed(() => {
         title: 'menu',
         items: [
           { path: '/student/dashboard', icon: 'bi bi-grid', key: 'dashboard' },
+          { path: '/student/browse-programs', icon: 'bi bi-journal-bookmark', key: 'browse_programs' },
           { path: '/student/workspace', icon: 'bi bi-laptop', key: 'workspace' },
           { path: '/student/application-status', icon: 'bi bi-file-earmark-text', key: 'application_status' },
           { path: '/notifications', icon: 'bi bi-bell', key: 'notifications' }
@@ -182,24 +184,27 @@ const handleLogout = async () => {
 
 // تحديد اتجاه الـ sidebar حسب اللغة
 const sidebarStyle = computed(() => {
-  const lang = localStorage.getItem('lang') || 'en'
+  const lang = currentLang.value || 'en'
   return {
-    [lang === 'ar' ? 'right' : 'left']: 0,
+    left: lang === 'ar' ? 'auto' : 0,
+    right: lang === 'ar' ? 0 : 'auto',
     transform: isOpen.value ? 'translateX(0)' : ''
   }
 })
 
 // الاستماع لتغيير حجم الشاشة
+const handleResize = () => {
+  if (window.innerWidth >= 768) {
+    closeSidebar()
+  }
+}
+
 onMounted(() => {
-  window.addEventListener('resize', () => {
-    if (window.innerWidth >= 768) {
-      closeSidebar()
-    }
-  })
+  window.addEventListener('resize', handleResize)
 })
 
 onUnmounted(() => {
-  window.removeEventListener('resize', closeSidebar)
+  window.removeEventListener('resize', handleResize)
 })
 
 // تعريض الدوال للمكونات الأخرى

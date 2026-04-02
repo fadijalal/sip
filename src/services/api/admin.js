@@ -1,24 +1,28 @@
-import api from './api'
+import axios from 'axios'
+
+const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+
+const webApi = axios.create({
+  baseURL: '',
+  headers: {
+    'X-Requested-With': 'XMLHttpRequest',
+    'X-CSRF-TOKEN': csrf,
+    'Accept': 'application/json'
+  },
+  withCredentials: true
+})
 
 export const adminAPI = {
-  getDashboard: () => api.get('/admin/dashboard'),
-  getUsers: (params) => api.get('/admin/users', { params }),
-  getUser: (id) => api.get(`/admin/users/${id}`),
-  createUser: (data) => api.post('/admin/users', data),
-  updateUser: (id, data) => api.put(`/admin/users/${id}`, data),
-  deleteUser: (id) => api.delete(`/admin/users/${id}`),
-  toggleUserStatus: (id) => api.post(`/admin/users/${id}/toggle-status`),
-  getCompanies: (params) => api.get('/admin/companies', { params }),
-  getCompany: (id) => api.get(`/admin/companies/${id}`),
-  createCompany: (data) => api.post('/admin/companies', data),
-  updateCompany: (id, data) => api.put(`/admin/companies/${id}`, data),
-  deleteCompany: (id) => api.delete(`/admin/companies/${id}`),
-  verifyCompany: (id) => api.post(`/admin/companies/${id}/verify`),
-  unverifyCompany: (id) => api.post(`/admin/companies/${id}/unverify`),
-  suspendCompany: (id) => api.post(`/admin/companies/${id}/suspend`),
-  activateCompany: (id) => api.post(`/admin/companies/${id}/activate`),
-  getCompanyStats: () => api.get('/admin/companies/stats/all'),
-  getReports: () => api.get('/admin/reports'),
-  generateReport: (data) => api.post('/admin/reports', data),
-  dismissAlert: (alertId) => api.post(`/admin/alerts/${alertId}/dismiss`),
+  getDashboard: () => webApi.get('/admin/dashboard'),
+  getUsers: () => webApi.get('/admin/users'),
+  getCompanies: () => webApi.get('/admin/companies'),
+  createSupervisor: (data) => webApi.post('/admin/supervisors', data),
+
+  approveSupervisor: (id) => webApi.post(`/admin/supervisors/${id}/status`, { action: 'active' }),
+  rejectSupervisor: (id) => webApi.post(`/admin/supervisors/${id}/status`, { action: 'reject' }),
+  deleteSupervisor: (id) => webApi.post(`/admin/supervisors/${id}/status`, { action: 'delete' }),
+
+  approveCompany: (id) => webApi.post(`/admin/companies/${id}/status`, { action: 'active' }),
+  rejectCompany: (id) => webApi.post(`/admin/companies/${id}/status`, { action: 'reject' }),
+  deleteCompany: (id) => webApi.post(`/admin/companies/${id}/status`, { action: 'delete' })
 }

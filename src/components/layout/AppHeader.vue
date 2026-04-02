@@ -29,6 +29,14 @@
 
         <!-- أدوات التحكم -->
         <div class="d-flex align-items-center gap-2 gap-sm-3">
+          <div v-if="isSupervisor && supervisorCode" class="supervisor-code-badge">
+            <i class="bi bi-key text-primary"></i>
+            <span class="small fw-semibold">{{ t('supervisor_code') }}:</span>
+            <span class="fw-bold">{{ supervisorCode }}</span>
+            <button class="copy-code-btn" @click="copySupervisorCode" :title="t('copy_code')">
+              <i class="bi bi-copy"></i>
+            </button>
+          </div>
           <!-- البحث (اختياري) -->
           <div v-if="showSearch" class="search-wrapper d-none d-lg-block">
             <i class="bi bi-search"></i>
@@ -156,8 +164,20 @@ const pageIcon = computed(() => {
 
 // بيانات المستخدم
 const userAvatar = computed(() => authStore.user?.avatar)
+const isSupervisor = computed(() => authStore.userType === 'supervisor')
+const supervisorCode = computed(() => authStore.user?.supervisor_code || '')
 const unreadCount = computed(() => notificationsStore.unreadCount)
 const recentNotifications = computed(() => notificationsStore.recentNotifications)
+
+const copySupervisorCode = async () => {
+  if (!supervisorCode.value) return
+  try {
+    await navigator.clipboard.writeText(supervisorCode.value)
+    alert(t('copied'))
+  } catch (error) {
+    console.error('Failed to copy supervisor code', error)
+  }
+}
 </script>
 
 <style scoped>
@@ -219,6 +239,15 @@ const recentNotifications = computed(() => notificationsStore.recentNotification
   color: var(--text-dark);
 }
 
+[dir="rtl"] .search-wrapper i {
+  left: auto;
+  right: 15px;
+}
+
+[dir="rtl"] .search-input {
+  padding: 10px 45px 10px 15px;
+}
+
 .btn-notification {
   width: 40px;
   height: 40px;
@@ -256,6 +285,35 @@ const recentNotifications = computed(() => notificationsStore.recentNotification
   background: var(--card-bg);
 }
 
+.supervisor-code-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--card-bg);
+  border: 1px solid var(--border-color);
+  border-radius: 999px;
+  padding: 6px 10px;
+}
+
+.copy-code-btn {
+  width: 28px;
+  height: 28px;
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+  background: transparent;
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+}
+
+.copy-code-btn:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+  background: var(--accent-soft);
+}
+
 .notification-header {
   padding: 15px 20px;
   border-bottom: 1px solid var(--border-color);
@@ -282,5 +340,12 @@ const recentNotifications = computed(() => notificationsStore.recentNotification
   .search-wrapper {
     display: none;
   }
+
+  .supervisor-code-badge {
+    max-width: 180px;
+    overflow: hidden;
+    white-space: nowrap;
+  }
 }
 </style>
+

@@ -25,6 +25,9 @@
           <p class="text-muted mb-0">{{ t('applicant_details') }}</p>
         </div>
         <div class="ms-auto">
+          <button v-if="applicant.can_open_board" class="btn btn-primary me-2" @click="openBoard">
+            <i class="bi bi-kanban me-2"></i>Board
+          </button>
           <button class="btn btn-outline-primary me-2" @click="sendMessage">
             <i class="bi bi-envelope me-2"></i>{{ t('send_message') }}
           </button>
@@ -250,6 +253,8 @@ const loadApplicantDetails = async () => {
       skills: data.skills || [],
       match_percentage: data.match_percentage,
       status: data.status,
+      can_open_board: !!data.can_open_board,
+      board_url: data.board_url || null,
       program_title: data.program_title,
       applied_at: data.applied_at,
       updated_at: data.updated_at,
@@ -350,6 +355,12 @@ const deleteNote = (note) => {
 
 const goBack = () => {
   router.push('/company/applicants')
+}
+
+const openBoard = () => {
+  if (applicant.value?.board_url) {
+    window.location.href = applicant.value.board_url
+  }
 }
 
 const getStatusClass = (status) => {

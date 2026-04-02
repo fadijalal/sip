@@ -10,7 +10,7 @@
   "new_supervisor": "New supervisor registered",
   "company_pending": "Company pending approval",
   "completed": "Completed",
-  "users": "Users",
+  "users": "Supervisor",
   "companies": "Companies",
   "reports": "Reports",
   "add_supervisor": "Add Supervisor",
@@ -38,5 +38,54 @@
   "students": "Students",
   "supervisors": "Supervisors",
   "this_week": "This Week",
-  "last_generated": "Last Generated"
+  "last_generated": "Last Generated",
+  "general_tasks": "General Tasks"
+  ,"general_task_broadcast": "General Task Broadcast"
+  ,"general_task_broadcast_desc": "Send one task to all approved and active trainees."
+  ,"title": "Title"
+  ,"details": "Details"
+  ,"due_date": "Due Date"
+  ,"label": "Label"
+  ,"none": "None"
+  ,"urgent": "Urgent"
+  ,"low": "Low"
+  ,"feature": "Feature"
+  ,"broadcast_task": "Broadcast Task"
+  ,"submitting": "Submitting..."
+  ,"approved_applications": "Approved Applications"
+  ,"student": "Student"
+  ,"program": "Program"
+  ,"no_approved_applications": "No approved applications."
+  ,"task_broadcast_success": "Task broadcast sent successfully."
+  ,"task_broadcast_failed": "Failed to broadcast task."
+  ,"add_supervisor_desc": "Create supervisor account and get supervisor code instantly."
+  ,"full_name": "Full Name"
+  ,"university_id": "University ID"
+  ,"phone_number": "Phone Number"
+  ,"password": "Password"
+  ,"confirm_password": "Confirm Password"
+  ,"create_supervisor": "Create Supervisor"
+  ,"creating": "Creating..."
+  ,"supervisor_created_successfully": "Supervisor created successfully"
+  ,"supervisor_code": "Supervisor Code"
+  ,"password_confirmation_not_match": "Password confirmation does not match."
+  ,"create_supervisor_failed": "Failed to create supervisor."
+  ,"manage_supervisors": "Manage Supervisors"
+  ,"manage_supervisors_desc": "Approve, reject, and delete supervisors."
+  ,"total_supervisors": "Total Supervisors"
+  ,"pending": "Pending"
+  ,"approved": "Approved"
+  ,"rejected": "Rejected"
+  ,"joined": "Joined"
+  ,"actions": "Actions"
+  ,"status": "Status"
+  ,"confirm_delete_supervisor": "Are you sure you want to delete this supervisor?"
+  ,"failed_update_supervisor": "Failed to update supervisor."
+  ,"manage_companies_desc": "Approve, reject, and delete companies."
+  ,"confirm_delete_company": "Are you sure you want to delete this company?"
+  ,"failed_update_company": "Failed to update company."
+  ,"all_accounts": "All Accounts"
+  ,"open": "Open"
+  ,"no_pending_companies": "No pending companies."
+  ,"no_recent_activity": "No recent activity."
 }

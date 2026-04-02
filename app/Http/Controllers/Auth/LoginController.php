@@ -4,86 +4,91 @@ namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use App\Models\UserNotification;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Schema;
 
 class LoginController extends Controller
 {
     public function login(Request $request)
     {
         $request->validate([
-            'identifier' => 'required',
-            'password'   => 'required',
+            'identifier' => ['required', 'string'],
+            'password' => ['required', 'string'],
         ]);
 
-        // =========================
-        // admin ثابت
-        // =========================
-        $adminEmail = 'admin';
-        $adminPassword = 'admin123';
+        $identifier = (string) $request->identifier;
+        $password = (string) $request->password;
 
-        if ($request->identifier === $adminEmail && $request->password === $adminPassword) {
+        // Fixed admin login
+        if ($identifier === 'admin' && $password === 'admin123') {
+            $admin = User::where('email', 'admin')->first();
 
-            $admin = User::where('email', $adminEmail)->first();
-
-            if (!$admin) {
+            if (! $admin) {
                 $admin = User::create([
                     'name' => 'Admin',
-                    'email' => $adminEmail,
+                    'email' => 'admin',
                     'role' => 'admin',
-                    'password' => Hash::make($adminPassword),
+                    'password' => Hash::make('admin123'),
                     'status' => 'active',
                 ]);
             }
 
             Auth::login($admin);
             $request->session()->regenerate();
+            $this->logLoginNotification($admin->id);
 
             return redirect()->route('admin.dashboard');
         }
 
-        // =========================
-        // دخول عادي
-        // =========================
-        $field = filter_var($request->identifier, FILTER_VALIDATE_EMAIL)
-            ? 'email'
-            : 'university_id';
+        $field = filter_var($identifier, FILTER_VALIDATE_EMAIL) ? 'email' : 'university_id';
+        $user = User::where($field, $identifier)->first();
 
-        $user = User::where($field, $request->identifier)->first();
-
-        if (!$user || !Hash::check($request->password, $user->password)) {
-            return back()->with('error', 'بيانات الدخول غير صحيحة')->withInput();
+        if (! $user) {
+            return back()->with('error', 'هذا الحساب غير موجود أو تم حذفه.')->withInput();
         }
 
-        if ($user->status !== 'active') {
-            return back()->with('error', 'حسابك قيد المراجعة أو مرفوض')->withInput();
+        if (! Hash::check($password, (string) $user->password)) {
+            return back()->with('error', 'كلمة المرور غير صحيحة.')->withInput();
+        }
+
+        if ((string) $user->status !== 'active') {
+            return back()->with('error', 'حسابك غير نشط حالياً.')->withInput();
         }
 
         Auth::login($user);
         $request->session()->regenerate();
+        $this->logLoginNotification($user->id);
 
-        // =========================
-        // التحويل حسب role
-        // =========================
-        if ($user->role === 'admin') {
-            return redirect()->route('admin.dashboard');
+        return match ((string) $user->role) {
+            'admin' => redirect()->route('admin.dashboard'),
+            'student' => redirect()->route('student.dashboard'),
+            'supervisor' => redirect()->route('supervisor.dashboard'),
+            'company' => redirect()->route('company.dashboard'),
+            default => tap(redirect()->route('login')->with('error', 'نوع المستخدم غير مسموح.'), function () {
+                Auth::logout();
+            }),
+        };
+    }
+
+    private function logLoginNotification(int $userId): void
+    {
+        try {
+            if (! Schema::hasTable('user_notifications')) {
+                return;
+            }
+
+            UserNotification::create([
+                'user_id' => $userId,
+                'title' => 'Login Successful',
+                'description' => 'تم تسجيل الدخول بنجاح.',
+                'type' => 'success',
+                'meta' => ['category' => 'auth'],
+            ]);
+        } catch (\Throwable) {
+            // Never block login because of notifications failures.
         }
-
-        if ($user->role === 'student') {
-            return redirect()->route('student.dashboard');
-        }
-
-        if ($user->role === 'supervisor') {
-            return redirect()->route('supervisor.dashboard');
-        }
-
-        if ($user->role === 'company') {
-            return redirect()->route('company.dashboard');
-        }
-
-        Auth::logout();
-
-        return redirect()->route('login')->with('error', 'نوع المستخدم غير مسموح');
     }
 }

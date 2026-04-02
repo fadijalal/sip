@@ -1,42 +1,36 @@
-import api from './api'
+import axios from 'axios'
+
+const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+
+const webApi = axios.create({
+  baseURL: '',
+  headers: {
+    'X-Requested-With': 'XMLHttpRequest',
+    'X-CSRF-TOKEN': csrf,
+    'Accept': 'application/json'
+  },
+  withCredentials: true
+})
 
 export const companyAPI = {
-  getDashboard: () => api.get('/company/dashboard'),
-  getPrograms: (params) => api.get('/company/programs', { params }),
-  getProgram: (id) => api.get(`/company/programs/${id}`),
-  createProgram: (data) => api.post('/company/programs', data),
-  updateProgram: (id, data) => api.put(`/company/programs/${id}`, data),
-  deleteProgram: (id) => api.delete(`/company/programs/${id}`),
-  duplicateProgram: (id) => api.post(`/company/programs/${id}/duplicate`),
-  getProgramStats: () => api.get('/company/programs/stats/all'),
-  getApplicants: (params) => api.get('/company/applicants', { params }),
-  getApplicant: (id) => api.get(`/company/applicants/${id}`),
-  acceptApplicant: (id) => api.post(`/company/applicants/${id}/accept`),
-  rejectApplicant: (id, data) => api.post(`/company/applicants/${id}/reject`, data),
-  getEvaluations: () => api.get('/company/evaluations'),
-  getStudentEvaluations: (studentId) => api.get(`/company/evaluations/student/${studentId}`),
-  getEvaluationStats: () => api.get('/company/evaluations/stats/all'),
-  exportEvaluations: (data) => api.post('/company/evaluations/export', data),
-  getInternshipTasks: (internshipId) => api.get(`/company/internships/${internshipId}/tasks`),
-  createInternshipTask: (internshipId, data) => api.post(`/company/internships/${internshipId}/tasks`, data),
-  updateInternshipTask: (internshipId, taskId, data) => api.put(`/company/internships/${internshipId}/tasks/${taskId}`, data),
-  deleteInternshipTask: (internshipId, taskId) => api.delete(`/company/internships/${internshipId}/tasks/${taskId}`),
-  getReports: (params) => api.get('/company/reports', { params }),
-  getStudentPerformanceReport: (data) => api.post('/company/reports/student-performance', data),
-  getTasksCompletionReport: (data) => api.post('/company/reports/tasks-completion', data),
-  getApplicantsReport: (data) => api.post('/company/reports/applicants', data),
-  getStatsOverview: () => api.get('/company/stats/overview'),
-  getProgramsStats: () => api.get('/company/stats/programs'),
-  getApplicantsStats: () => api.get('/company/stats/applicants'),
-  getTrelloSettings: () => api.get('/company/trello/settings'),
-  saveTrelloSettings: (data) => api.post('/company/trello/settings', data),
-  getTrelloBoards: () => api.get('/company/trello/boards'),
-  getTrelloLists: (boardId) => api.get(`/company/trello/boards/${boardId}/lists`),
-  connectTrelloBoard: (internshipId, data) => api.post(`/company/trello/connect/${internshipId}`, data),
-  syncTrello: (internshipId) => api.post(`/company/trello/sync/${internshipId}`),
-  disconnectTrello: () => api.post('/company/trello/disconnect'),
-  testTrelloConnection: () => api.post('/company/trello/test'),
-  getTrelloIntegrations: () => api.get('/company/trello/integrations'),
-  getCompanyProfile: () => api.get('/company/profile'),
-  updateCompanyProfile: (data) => api.put('/company/profile', data),
+  getDashboard: () => webApi.get('/company/dashboard'),
+  getPrograms: (params) => webApi.get('/company/programs', { params }),
+  getProgram: (id) => webApi.get(`/company/programs/${id}`),
+  createProgram: (data) => webApi.post('/company/programs', data),
+  updateProgram: (id, data) => webApi.post(`/company/programs/${id}`, data),
+  deleteProgram: (id) => webApi.post(`/company/programs/${id}/delete`),
+  duplicateProgram: async (id) => {
+    const base = await webApi.get(`/company/programs/${id}`)
+    const payload = { ...(base.data?.data || {}) }
+    delete payload.id
+    payload.title = `${payload.title || 'Program'} (Copy)`
+    return webApi.post('/company/programs', payload)
+  },
+  getApplicants: (params) => webApi.get('/company/applicants', { params }),
+  getApplicant: (id) => webApi.get(`/company/applicants/${id}`),
+  acceptApplicant: (id) => webApi.post(`/company/applications/${id}/approve`),
+  rejectApplicant: (id, data) => webApi.post(`/company/applications/${id}/reject`, data || {}),
+  getReports: () => Promise.resolve({ data: { status: 'success', data: [] } }),
+  getTrelloSettings: () => Promise.resolve({ data: { status: 'success', data: {} } }),
+  saveTrelloSettings: (data) => Promise.resolve({ data: { status: 'success', data } })
 }

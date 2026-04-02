@@ -165,6 +165,14 @@
                     <button class="btn-icon-accent btn-sm" @click="viewApplicant(applicant)" :title="t('view_details')">
                       <i class="bi bi-eye"></i>
                     </button>
+                    <button
+                      v-if="applicant.board_url"
+                      class="btn-icon-success btn-sm"
+                      @click="openBoard(applicant)"
+                      title="Open Board"
+                    >
+                      <i class="bi bi-kanban"></i>
+                    </button>
                     <button v-if="applicant.status === 'pending'" class="btn-icon-success btn-sm" @click="reviewApplicant(applicant)" :title="t('review')">
                       <i class="bi bi-check2-square"></i>
                     </button>
@@ -362,6 +370,12 @@ const viewProgram = (program) => {
 
 const viewApplicant = (applicant) => {
   router.push(`/company/applicants/${applicant.id}`)
+}
+
+const openBoard = (applicant) => {
+  if (applicant?.board_url) {
+    window.location.href = applicant.board_url
+  }
 }
 
 const reviewApplicant = (applicant) => {

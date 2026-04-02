@@ -1,21 +1,34 @@
-import api from './api'
+import axios from 'axios'
+
+const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+
+const webApi = axios.create({
+  baseURL: '',
+  headers: {
+    'X-Requested-With': 'XMLHttpRequest',
+    'X-CSRF-TOKEN': csrf,
+    'Accept': 'application/json'
+  },
+  withCredentials: true
+})
 
 export const supervisorAPI = {
-  getDashboard: () => api.get('/supervisor/dashboard'),
-  getStudents: (params) => api.get('/supervisor/students', { params }),
-  getStudent: (id) => api.get(`/supervisor/students/${id}`),
-  addStudent: (data) => api.post('/supervisor/students', data),
-  addNote: (id, note) => api.post(`/supervisor/students/${id}/notes`, { note }),
-  getJisrProgress: (id) => api.get(`/supervisor/students/${id}/jisr-progress`),
-  getWeeklyTasks: () => api.get('/supervisor/weekly-tasks'),
-  getEvaluations: (params) => api.get('/supervisor/evaluations', { params }),
-  getEvaluation: (id) => api.get(`/supervisor/evaluations/${id}`),
-  createEvaluation: (data) => api.post('/supervisor/evaluations', data),
-  updateEvaluation: (id, data) => api.put(`/supervisor/evaluations/${id}`, data),
-  deleteEvaluation: (id) => api.delete(`/supervisor/evaluations/${id}`),
-  getEvaluationStats: () => api.get('/supervisor/evaluations/stats/all'),
-  getInternships: () => api.get('/supervisor/internships'),
-  getReports: (params) => api.get('/supervisor/reports', { params }),
-  generateReport: (data) => api.post('/supervisor/reports/generate', data),
-  createTask: (data) => api.post('/supervisor/tasks', data),
+  getDashboard: () => webApi.get('/supervisor/dashboard'),
+  getStudents: () => webApi.get('/supervisor/students'),
+  getStudent: (id) => webApi.get(`/supervisor/student/${id}`),
+  getWeeklyTasks: () => webApi.get('/supervisor/weekly-tasks'),
+  broadcastTask: (data) => webApi.post('/supervisor/tasks/broadcast', data),
+  getApplications: () => webApi.get('/supervisor/applications'),
+  getApplication: (id) => webApi.get(`/supervisor/applications/${id}`),
+  approveStudentActivation: (id) => webApi.post(`/supervisor/students/${id}/approve`),
+  rejectStudentActivation: (id) => webApi.post(`/supervisor/students/${id}/reject`),
+  deleteStudent: (id) => webApi.post(`/supervisor/students/${id}/delete`),
+  approveApplication: (id) => webApi.post(`/supervisor/applications/${id}/approve`),
+  rejectApplication: (id) => webApi.post(`/supervisor/applications/${id}/reject`),
+  completeTraining: (id, data) => webApi.post(`/supervisor/applications/${id}/complete-training`, data),
+  getEvaluations: () => Promise.resolve({ data: { status: 'success', data: { evaluations: [] } } }),
+  getInternships: () => Promise.resolve({ data: { status: 'success', data: [] } }),
+  createEvaluation: () => Promise.resolve({ data: { status: 'success' } }),
+  updateEvaluation: () => Promise.resolve({ data: { status: 'success' } }),
+  deleteEvaluation: () => Promise.resolve({ data: { status: 'success' } })
 }

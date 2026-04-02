@@ -160,7 +160,7 @@
           <ul class="list-unstyled">
             <li v-for="stat in quickStats" :key="stat.key" class="stat-item">
               <span class="text-muted">
-                <i :class="stat.icon" class="me-2" :class="stat.iconClass"></i>
+<i :class="[stat.icon, stat.iconClass, 'me-2']"></i>
                 {{ t(stat.label) }}
               </span>
               <span class="fw-bold">{{ stat.value }}</span>

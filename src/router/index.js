@@ -87,6 +87,12 @@ const routes = [
     component: () => import('@/views/admin/AddSupervisor.vue'),
     meta: { requiresAuth: true, role: 'admin' }
   },
+  {
+    path: '/admin/tasks/workspace',
+    name: 'AdminGeneralTasks',
+    component: () => import('@/views/admin/AdminGeneralTasks.vue'),
+    meta: { requiresAuth: true, role: 'admin' }
+  },
 
   // ========== مسارات المشرف (Supervisor) ==========
   {
@@ -312,8 +318,14 @@ router.beforeEach(async (to, from, next) => {
     // التحقق من الدور المطلوب
     else if (requiredRole && authStore.userType !== requiredRole) {
       // دور غير مناسب - التوجيه للوحة المناسبة
-      const redirectPath = `/${authStore.userType}/dashboard`
-      next(redirectPath)
+      const userRole = authStore.userType
+      if (!userRole || !['admin', 'student', 'supervisor', 'company'].includes(userRole)) {
+        await authStore.logout()
+        next('/login')
+      } else {
+        const redirectPath = `/${userRole}/dashboard`
+        next(redirectPath)
+      }
     }
     else {
       // كل شيء تمام
@@ -325,8 +337,14 @@ router.beforeEach(async (to, from, next) => {
     // إذا كان المستخدم مسجل دخول ويحاول الدخول لصفحة تسجيل الدخول أو التسجيل
     if (authStore.isAuthenticated && (to.path === '/login' || to.path === '/register' || to.path === '/company/register')) {
       // التوجيه للوحة التحكم المناسبة
-      const redirectPath = `/${authStore.userType}/dashboard`
-      next(redirectPath)
+      const userRole = authStore.userType
+      if (!userRole || !['admin', 'student', 'supervisor', 'company'].includes(userRole)) {
+        await authStore.logout()
+        next('/login')
+      } else {
+        const redirectPath = `/${userRole}/dashboard`
+        next(redirectPath)
+      }
     } else {
       next()
     }

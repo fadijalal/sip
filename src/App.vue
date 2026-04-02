@@ -1,50 +1,52 @@
-<template>
+﻿<template>
   <div id="app" :class="{ 'dark-theme': isDark }">
-    <!-- عرض الـ Sidebar فقط إذا كان المستخدم مسجل دخول -->
-    <AppSidebar
-      v-if="authStore.isAuthenticated"
-      ref="sidebarRef"
-    />
+    <template v-if="isAuthPage">
+      <router-view />
+      <ToastContainer />
+    </template>
 
-    <!-- زر القائمة للموبايل (يظهر فقط إذا كان الـ Sidebar مخفياً) -->
-    <button
-      v-if="authStore.isAuthenticated && windowWidth < 768"
-      class="mobile-menu-toggle"
-      @click="toggleSidebar"
-    >
-      <i class="bi bi-list"></i>
-    </button>
-
-    <div
-      class="main-wrapper"
-      :class="{ 'with-sidebar': authStore.isAuthenticated }"
-    >
-      <!-- الـ Header -->
-      <AppHeader
+    <template v-else>
+      <AppSidebar
         v-if="authStore.isAuthenticated"
-        :showSearch="showSearch"
-        @toggle-sidebar="toggleSidebar"
-        @search="handleSearch"
+        ref="sidebarRef"
       />
 
-      <!-- المحتوى الرئيسي مع Router View -->
-      <main class="main-content">
-        <router-view v-slot="{ Component }">
-          <transition
-            name="fade"
-            mode="out-in"
-            @before-enter="beforeEnter"
-            @enter="enter"
-            @leave="leave"
-          >
-            <component :is="Component" />
-          </transition>
-        </router-view>
-      </main>
-    </div>
+      <button
+        v-if="authStore.isAuthenticated && windowWidth < 768"
+        class="mobile-menu-toggle"
+        @click="toggleSidebar"
+      >
+        <i class="bi bi-list"></i>
+      </button>
 
-    <!-- Toast notifications -->
-    <ToastContainer />
+      <div
+        class="main-wrapper"
+        :class="{ 'with-sidebar': authStore.isAuthenticated }"
+      >
+        <AppHeader
+          v-if="authStore.isAuthenticated"
+          :showSearch="showSearch"
+          @toggle-sidebar="toggleSidebar"
+          @search="handleSearch"
+        />
+
+        <main class="main-content">
+          <router-view v-slot="{ Component }">
+            <transition
+              name="fade"
+              mode="out-in"
+              @before-enter="beforeEnter"
+              @enter="enter"
+              @leave="leave"
+            >
+              <component :is="Component" />
+            </transition>
+          </router-view>
+        </main>
+      </div>
+
+      <ToastContainer />
+    </template>
   </div>
 </template>
 
@@ -65,9 +67,9 @@ const sidebarRef = ref(null)
 const windowWidth = ref(window.innerWidth)
 const showSearch = ref(false)
 
-// التحقق من عرض شريط البحث (يعتمد على المسار)
+const isAuthPage = computed(() => ['/login', '/register'].includes(router.currentRoute.value.path))
+
 const handleSearch = (term) => {
-  // إرسال حدث البحث إلى الصفحة النشطة
   const event = new CustomEvent('global-search', { detail: term })
   window.dispatchEvent(event)
 }
@@ -78,12 +80,10 @@ const toggleSidebar = () => {
   }
 }
 
-// تحديث عرض النافذة
 const updateWindowWidth = () => {
   windowWidth.value = window.innerWidth
 }
 
-// أنيميشن الصفحات
 const beforeEnter = (el) => {
   el.style.opacity = 0
   el.style.transform = 'translateY(20px)'
@@ -115,7 +115,6 @@ onUnmounted(() => {
 </script>
 
 <style>
-/* استيراد الأنماط الأساسية */
 @import '@/assets/styles/variables.css';
 @import '@/assets/styles/dark-mode.css';
 @import '@/assets/styles/main.css';
@@ -126,9 +125,14 @@ onUnmounted(() => {
   box-sizing: border-box;
 }
 
+html, body, #app {
+  min-height: 100%;
+}
+
 body {
   font-family: 'Inter', 'Cairo', sans-serif;
   overflow-x: hidden;
+  min-height: 100vh;
 }
 
 #app {
@@ -176,7 +180,6 @@ body {
   cursor: pointer;
 }
 
-/* أنيميشن fade */
 .fade-enter-active,
 .fade-leave-active {
   transition: all 0.3s ease;
@@ -188,7 +191,6 @@ body {
   transform: translateY(20px);
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .main-wrapper.with-sidebar {
     margin-left: 0 !important;

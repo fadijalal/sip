@@ -5,6 +5,8 @@ use App\Http\Controllers\application\ApplicationController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\Auth\LogoutController;
 use App\Http\Controllers\Auth\RegisterController;
+use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\ProfileController;
 use App\Http\Controllers\company\ApplicationsCompanyController;
 use App\Http\Controllers\company\DashboardCompanyController;
 use App\Http\Controllers\company\JobController;
@@ -53,6 +55,9 @@ Route::middleware('auth')->group(function () {
     Route::get('/admin/dashboard', [AdminController::class, 'adminDashboard'])->name('admin.dashboard');
     Route::get('/admin/users', [AdminController::class, 'adminUsersPage'])->name('admin.users');
     Route::get('/admin/companies', [AdminController::class, 'adminCompaniesPage'])->name('admin.companies');
+    Route::view('/admin/reports', 'spa')->name('admin.reports');
+    Route::view('/admin/add-supervisor', 'spa')->name('admin.add-supervisor');
+    Route::post('/admin/supervisors', [AdminController::class, 'createSupervisor'])->name('admin.supervisors.store');
     Route::post('/admin/supervisor/{id}', [AdminController::class, 'updateSupervisorStatus'])->name('admin.supervisor.update');
     Route::post('/admin/company/{id}', [AdminController::class, 'updateCompanyStatus'])->name('admin.company.update');
     Route::post('/admin/supervisors/{id}/status', [AdminController::class, 'updateSupervisorStatus']);
@@ -61,6 +66,7 @@ Route::middleware('auth')->group(function () {
     Route::get('/company/dashboard', [DashboardCompanyController::class, 'dashboard'])->name('company.dashboard');
     Route::get('/company/programs', [ProgramsCompanyController::class, 'programsPage'])->name('company.programs.index');
     Route::get('/company/programs/create', [ProgramsCompanyController::class, 'createProgramPage'])->name('company.programs.create');
+    Route::get('/company/programs/{id}', [ProgramsCompanyController::class, 'show'])->name('company.programs.show');
     Route::get('/company/programs/{id}/edit', [ProgramsCompanyController::class, 'editProgramPage'])->name('company.programs.edit');
     Route::post('/company/createJob', [JobController::class, 'createJob'])->name('company.jobs.create');
     Route::post('/company/jobs/{id}', [JobController::class, 'updateJob'])->name('company.jobs.update');
@@ -70,28 +76,49 @@ Route::middleware('auth')->group(function () {
     Route::post('/company/programs/{id}/delete', [JobController::class, 'deleteJob'])->name('company.programs.delete');
     Route::get('/company/applicants', [ApplicationsCompanyController::class, 'applicantsPage'])->name('company.applicants.index');
     Route::get('/company/applicants/{id}', [ApplicationsCompanyController::class, 'applicantDetails'])->name('company.applicants.show');
+    Route::view('/company/reports', 'spa')->name('company.reports');
+    Route::view('/company/trello-settings', 'spa')->name('company.trello-settings');
+    Route::get('/notifications', [NotificationController::class, 'index'])->name('notifications');
+    Route::post('/notifications/mark-all-read', [NotificationController::class, 'markAllRead'])->name('notifications.mark-all-read');
+    Route::post('/notifications/{id}/mark-read', [NotificationController::class, 'markRead'])->name('notifications.mark-read');
+    Route::delete('/notifications/{id}', [NotificationController::class, 'destroy'])->name('notifications.delete');
+    Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
+    Route::put('/profile', [ProfileController::class, 'update'])->name('profile.update');
+    Route::post('/change-password', [ProfileController::class, 'changePassword'])->name('profile.change-password');
+    Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
     Route::post('/company/applications/{id}/approve', [ApplicationController::class, 'companyApplicationApprove'])->name('company.applications.approve');
     Route::post('/company/applications/{id}/reject', [ApplicationController::class, 'companyApplicationReject'])->name('company.applications.reject');
     Route::post('/company/applications/{id}/complete-training', [ApplicationController::class, 'companyCompleteTraining'])->name('company.applications.complete-training');
 
     Route::get('/student/dashboard', [StudentController::class, 'dashboard'])->name('student.dashboard');
     Route::get('/student/programs', [StudentController::class, 'programs'])->name('student.programs.index');
+    Route::get('/student/browse-programs', [StudentController::class, 'programs'])->name('student.programs.browse');
     Route::get('/student/programs/{id}', [StudentController::class, 'programShow'])->name('student.programs.show');
+    Route::get('/student/program/{id}', [StudentController::class, 'programShow'])->name('student.program.view');
     Route::post('/student/applications/apply', [ApplicationController::class, 'applyApplication'])->name('student.applications.apply');
     Route::get('/student/applications', [StudentController::class, 'applications'])->name('student.applications.index');
+    Route::get('/student/application-status', [StudentController::class, 'applications'])->name('student.applications.status');
     Route::get('/student/workspace', [StudentController::class, 'workspace'])->name('student.workspace.index');
+    Route::view('/student/submit-task/{taskId}', 'spa')->name('student.submit-task');
+    Route::view('/student/accreditation', 'spa')->name('student.accreditation');
+    Route::view('/student/jisr', 'spa')->name('student.jisr');
+    Route::view('/student/skill-test', 'spa')->name('student.skill-test');
 
     Route::get('/supervisor/dashboard', [SupervisorController::class, 'dashboard'])->name('supervisor.dashboard');
     Route::get('/supervisor/students', [SupervisorController::class, 'studentsPage'])->name('supervisor.students.index');
+    Route::get('/supervisor/student/{id}', [SupervisorController::class, 'studentDetails'])->name('supervisor.students.show');
     Route::get('/supervisor/students/pending', [SupervisorController::class, 'pendingStudentsPage'])->name('supervisor.students.pending');
-    Route::post('/supervisor/students/{id}/approve', [ApplicationController::class, 'supervisorActiveStudentAcouunt'])->name('supervisor.students.approve');
-    Route::post('/supervisor/students/{id}/reject', [ApplicationController::class, 'rejectActiveStudentAcouunt'])->name('supervisor.students.reject');
+    Route::post('/supervisor/students/{id}/approve', [SupervisorController::class, 'supervisorActiveStudentAcouunt'])->name('supervisor.students.approve');
+    Route::post('/supervisor/students/{id}/reject', [SupervisorController::class, 'rejectActiveStudentAcouunt'])->name('supervisor.students.reject');
+    Route::post('/supervisor/students/{id}/delete', [SupervisorController::class, 'deleteStudent'])->name('supervisor.students.delete');
     Route::get('/supervisor/applications', [SupervisorApplicationsController::class, 'applicationsPage'])->name('supervisor.applications.index');
     Route::get('/supervisor/applications/{id}', [SupervisorApplicationsController::class, 'show'])->name('supervisor.applications.show');
     Route::post('/supervisor/applications/{id}/approve', [ApplicationController::class, 'supervisorApplicationApprove'])->name('supervisor.applications.approve');
     Route::post('/supervisor/applications/{id}/reject', [ApplicationController::class, 'supervisorReject'])->name('supervisor.applications.reject');
     Route::post('/supervisor/applications/{id}/complete-training', [ApplicationController::class, 'supervisorCompleteTraining'])->name('supervisor.applications.complete-training');
     Route::get('/supervisor/weekly-tasks', [SupervisorController::class, 'weeklyTasksPage'])->name('supervisor.weekly-tasks');
+    Route::view('/supervisor/reports', 'spa')->name('supervisor.reports');
+    Route::view('/supervisor/evaluations', 'spa')->name('supervisor.evaluations');
 
     // Training Tasks Workflow (Role-based + Trello sync)
     Route::get('/workspace/tasks', [TrainingTaskController::class, 'workspace'])->name('tasks.workspace');

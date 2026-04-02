@@ -1,28 +1,33 @@
-import api from './api'
+import axios from 'axios'
+
+const csrf = document.querySelector('meta[name="csrf-token"]')?.getAttribute('content') || ''
+
+const webApi = axios.create({
+  baseURL: '',
+  headers: {
+    'X-Requested-With': 'XMLHttpRequest',
+    'X-CSRF-TOKEN': csrf,
+    Accept: 'application/json'
+  },
+  withCredentials: true
+})
 
 export const studentAPI = {
-  getDashboard: () => api.get('/student/dashboard'),
-  getTasks: () => api.get('/student/tasks'),
-  getTask: (id) => api.get(`/student/tasks/${id}`),
-  submitTask: (id, data) => api.post(`/student/tasks/${id}/submit`, data),
-  getPrograms: (params) => api.get('/student/programs', { params }),
-  getProgram: (id) => api.get(`/student/programs/${id}`),
-  applyToProgram: (id) => api.post(`/student/programs/${id}/apply`),
-  getApplications: () => api.get('/student/applications'),
-  getJisrTasks: () => api.get('/student/jisr/tasks'),
-  getJisrTask: (id) => api.get(`/student/jisr/tasks/${id}`),
-  submitJisrTask: (id, data) => api.post(`/student/jisr/tasks/${id}/submit`, data),
-  getJisrProgress: () => api.get('/student/jisr/progress'),
-  getSkillTest: () => api.get('/student/test'),
-  startSkillTest: (id) => api.post(`/student/test/${id}/start`),
-  submitTestResult: (id, data) => api.post(`/student/test/${id}/submit`, data),
-  getTestResult: (id) => api.get(`/student/test/${id}/result`),
-  getCurrentInternship: () => api.get('/student/internship/current'),
-  getInternshipTasks: (week) => api.get(`/student/internship/tasks`, { params: { week } }),
-  updateTaskStatus: (taskId, status) => api.post(`/student/internship/task/${taskId}/update`, { status }),
-  getInternshipEvaluations: () => api.get('/student/internship/evaluations'),
-  getFinalReport: () => api.get('/student/internship/final-report'),
-  downloadReport: (internshipId) => api.get(`/student/internship/${internshipId}/download-report`, { responseType: 'blob' }),
-  downloadCertificate: () => api.get('/student/certificate/download', { responseType: 'blob' }),
-  completeJisrProgram: () => api.post('/student/jisr/complete'),
+  getDashboard: () => webApi.get('/student/dashboard'),
+  getPrograms: (params) => webApi.get('/student/programs', { params }),
+  getProgram: (id) => webApi.get(`/student/programs/${id}`),
+  applyToProgram: (data) => {
+    const formData = new FormData()
+    formData.append('opportunity_id', data.opportunity_id)
+    formData.append('skills', data.skills || '')
+    formData.append('motivation', data.motivation || '')
+    if (data.cv) {
+      formData.append('cv', data.cv)
+    }
+    return webApi.post('/student/applications/apply', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' }
+    })
+  },
+  getApplications: () => webApi.get('/student/applications'),
+  getWorkspace: () => webApi.get('/student/workspace')
 }
