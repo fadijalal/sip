@@ -77,9 +77,9 @@ class SupervisorApplicationsController extends Controller
 
     public function applicationsPage(Request $request)
     {
-        abort_unless(auth()->check() && auth()->user()->role === 'supervisor', 403);
+        abort_unless(Auth::check() && Auth::user()->role === 'supervisor', 403);
 
-        $supervisor = auth()->user();
+        $supervisor = Auth::user();
 
         $applications = \App\Models\Application::with(['student', 'opportunity'])
             ->whereHas('student', function ($q) use ($supervisor) {

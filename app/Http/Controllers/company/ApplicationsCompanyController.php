@@ -198,21 +198,4 @@ class ApplicationsCompanyController extends Controller
         return view('spa');
     }
 
-    private function applicationNotification(int $userId, string $title, string $description): void
-    {
-        try {
-            if (! Schema::hasTable('user_notifications')) {
-                return;
-            }
-
-            UserNotification::create([
-                'user_id' => $userId,
-                'title' => $title,
-                'description' => $description,
-                'type' => 'success',
-                // 'meta' => ['category' => 'auth'],
-            ]);
-        } catch (\Throwable) {
-        }
-    }
 }

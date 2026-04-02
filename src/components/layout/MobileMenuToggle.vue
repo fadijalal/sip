@@ -19,7 +19,7 @@
       <div class="mobile-sidebar-header">
         <div class="logo-area">
           <div class="brand-icon">
-            <i class="bi bi-eye-fill"></i>
+            <i class="bi bi-mortarboard-fill"></i>
           </div>
           <span class="fw-bold fs-5">{{ t('brand') }}</span>
         </div>
