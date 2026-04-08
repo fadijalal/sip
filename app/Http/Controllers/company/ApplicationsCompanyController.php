@@ -18,12 +18,12 @@ class ApplicationsCompanyController extends Controller
         if (! $approvedAt || $durationMonths <= 0) {
             return 0;
         }
-
+            
         $start = $approvedAt->copy()->startOfDay();
         $end = $approvedAt->copy()->addMonths($durationMonths)->startOfDay();
         $totalDays = max(1, $start->diffInDays($end));
         $elapsed = min($totalDays, $start->diffInDays(now()->startOfDay()));
-
+        
         return (int) max(0, min(100, round(($elapsed / $totalDays) * 100)));
     }
 
@@ -82,7 +82,9 @@ class ApplicationsCompanyController extends Controller
                 'data' => [
                     'applicants' => $paginated->getCollection()->map(function ($application) {
                         $name = (string) optional($application->student)->name;
-                        $canOpenBoard = $application->final_status === 'approved';
+                        $canOpenBoard = $application->final_status === 'approved'
+                            && ! empty($application->approved_at)
+                            && optional($application->student)->status === 'active';
                         return [
                             'id' => $application->id,
                             'name' => $name,
@@ -104,6 +106,10 @@ class ApplicationsCompanyController extends Controller
                             $q->where('company_user_id', $companyId);
                         })
                         ->where('final_status', 'approved')
+                        ->whereNotNull('approved_at')
+                        ->whereHas('student', function ($q) {
+                            $q->where('status', 'active');
+                        })
                         ->latest()
                         ->get()
                         ->map(function ($application) {
@@ -174,8 +180,12 @@ class ApplicationsCompanyController extends Controller
                         ? 'accepted'
                         : ($application->company_status === 'rejected' ? 'rejected' : 'pending'),
                     'final_status' => $application->final_status,
-                    'can_open_board' => $application->final_status === 'approved',
-                    'board_url' => $application->final_status === 'approved'
+                    'can_open_board' => $application->final_status === 'approved'
+                        && ! empty($application->approved_at)
+                        && optional($application->student)->status === 'active',
+                    'board_url' => ($application->final_status === 'approved'
+                        && ! empty($application->approved_at)
+                        && optional($application->student)->status === 'active')
                         ? route('tasks.board', ['application' => $application->id])
                         : null,
                     'training_progress_percent' => $this->trainingProgressPercent($application),

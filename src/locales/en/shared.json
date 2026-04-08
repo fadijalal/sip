@@ -66,4 +66,7 @@
   "confirm_delete_account": "Are you sure you want to delete your account?",
   "account_deleted": "Account deleted successfully.",
   "failed_delete_account": "Failed to delete account."
+  ,
+  "applications": "Applications",
+  "no_pending_applications": "No pending applications."
 }

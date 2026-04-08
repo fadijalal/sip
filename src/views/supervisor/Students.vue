@@ -40,6 +40,35 @@
       </div>
     </div>
 
+    <div class="card border-0 shadow-sm p-3 mb-4">
+      <h5 class="fw-bold mb-3">{{ t('pending') }} {{ t('applications') }}</h5>
+      <div v-if="pendingTrainingApplications.length === 0" class="text-muted">{{ t('no_pending_applications') }}</div>
+      <div v-else class="table-responsive">
+        <table class="table align-middle">
+          <thead>
+            <tr>
+              <th>{{ t('student') }}</th>
+              <th>{{ t('program') }}</th>
+              <th>{{ t('actions') }}</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="app in pendingTrainingApplications" :key="app.id">
+              <td>
+                <div class="fw-bold">{{ app.student_name }}</div>
+                <small class="text-muted">{{ app.student_email }}</small>
+              </td>
+              <td>{{ app.program_title || '-' }}</td>
+              <td class="d-flex gap-2">
+                <button class="btn btn-sm btn-success" @click="approveApplication(app.id)">{{ t('approved') }}</button>
+                <button class="btn btn-sm btn-danger" @click="rejectApplication(app.id)">{{ t('rejected') }}</button>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
     <div class="card border-0 shadow-sm p-3">
       <h5 class="fw-bold mb-3">{{ t('approved_students') }}</h5>
       <div v-if="approvedStudents.length === 0" class="text-muted">{{ t('no_approved_students_yet') }}</div>
@@ -142,6 +171,7 @@ const router = useRouter()
 
 const stats = ref({})
 const pendingStudents = ref([])
+const pendingTrainingApplications = ref([])
 const approvedStudents = ref([])
 const rejectedStudents = ref([])
 
@@ -163,6 +193,7 @@ const loadStudents = async () => {
   const data = res.data?.data || {}
   stats.value = data.stats || {}
   pendingStudents.value = data.pending_students || []
+  pendingTrainingApplications.value = data.pending_training_applications || []
   approvedStudents.value = data.approved_students || []
   rejectedStudents.value = data.rejected_students || []
 }
@@ -174,6 +205,16 @@ const approvePending = async (id) => {
 
 const rejectPending = async (id) => {
   await supervisorAPI.rejectStudentActivation(id)
+  await loadStudents()
+}
+
+const approveApplication = async (id) => {
+  await supervisorAPI.approveApplication(id)
+  await loadStudents()
+}
+
+const rejectApplication = async (id) => {
+  await supervisorAPI.rejectApplication(id)
   await loadStudents()
 }
 

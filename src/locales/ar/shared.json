@@ -64,5 +64,7 @@
   "failed_update_password": "فشل تحديث كلمة المرور.",
   "confirm_delete_account": "هل أنت متأكد من حذف حسابك؟",
   "account_deleted": "تم حذف الحساب بنجاح.",
-  "failed_delete_account": "فشل حذف الحساب."
+  "failed_delete_account": "فشل حذف الحساب.",
+  "applications": "الطلبات",
+  "no_pending_applications": "لا يوجد طلبات معلقة."
 }

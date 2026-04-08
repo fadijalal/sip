@@ -149,20 +149,20 @@
 
       <div class="table-card mt-4">
         <div class="d-flex justify-content-between align-items-center mb-3">
-          <h5 class="fw-bold mb-0">Final Approved Students - Task Progress</h5>
-          <span class="text-muted small">{{ approvedTrainees.length }} students</span>
+          <h5 class="fw-bold mb-0">{{ t('approved_students') }} - {{ t('training_progress') }}</h5>
+          <span class="text-muted small">{{ approvedTrainees.length }}</span>
         </div>
         <div v-if="approvedTrainees.length === 0" class="text-muted small py-3">
-          No final approved students yet.
+          {{ t('no_approved_students_yet') }}
         </div>
         <div v-else class="table-responsive">
           <table class="table">
             <thead>
               <tr>
-                <th>Student</th>
-                <th>Program</th>
-                <th>Progress</th>
-                <th>Actions</th>
+                <th>{{ t('student') }}</th>
+                <th>{{ t('program') }}</th>
+                <th>{{ t('training_progress') }}</th>
+                <th>{{ t('actions') }}</th>
               </tr>
             </thead>
             <tbody>
@@ -179,8 +179,8 @@
                   <small class="text-muted">{{ trainee.progress_percent }}%</small>
                 </td>
                 <td>
-                  <button class="btn btn-sm btn-primary" @click="openBoard(trainee)">
-                    <i class="bi bi-kanban me-1"></i> Board
+                  <button v-if="trainee.board_url" class="btn btn-sm btn-primary" @click="openBoard(trainee)">
+                    <i class="bi bi-kanban me-1"></i>{{ t('board') }}
                   </button>
                 </td>
               </tr>

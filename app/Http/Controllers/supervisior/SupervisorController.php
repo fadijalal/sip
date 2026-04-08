@@ -197,6 +197,10 @@ class SupervisorController extends Controller
                 ->latest()
                 ->first();
 
+            if (! $application || ! $application->approved_at) {
+                return null;
+            }
+
             $progress = 0;
             $statusLabel = 'On Track';
 
@@ -216,7 +220,7 @@ class SupervisorController extends Controller
                 'progress'     => $progress,
                 'status_label' => $statusLabel,
             ];
-        });
+        })->filter()->values();
 
         $totalStudents = User::where('role', 'student')
             ->where('supervisor_code', $supervisor->supervisor_code)
@@ -233,6 +237,16 @@ class SupervisorController extends Controller
         $totalRejected = $rejectedStudents->count();
 
         if ($request->expectsJson() || $request->ajax()) {
+            $pendingTrainingApplications = Application::with(['student', 'opportunity'])
+                ->whereHas('student', function ($q) use ($supervisor) {
+                    $q->where('supervisor_code', $supervisor->supervisor_code)
+                        ->where('status', 'active');
+                })
+                ->where('company_status', 'approved')
+                ->where('supervisor_status', 'pending')
+                ->latest()
+                ->get();
+
             return response()->json([
                 'status' => 'success',
                 'data' => [
@@ -250,6 +264,13 @@ class SupervisorController extends Controller
                         'program' => null,
                         'status' => 'pending',
                         'initials' => collect(explode(' ', (string) $student->name))->filter()->map(fn ($n) => mb_substr($n, 0, 1))->take(2)->implode('') ?: 'ST',
+                    ])->values(),
+                    'pending_training_applications' => $pendingTrainingApplications->map(fn ($app) => [
+                        'id' => $app->id,
+                        'student_name' => $app->student?->name,
+                        'student_email' => $app->student?->email,
+                        'program_title' => $app->opportunity?->title,
+                        'created_at' => optional($app->created_at)->toISOString(),
                     ])->values(),
                     'approved_students' => collect($approvedStudents)->map(function ($row) {
                         $student = $row['student'];
